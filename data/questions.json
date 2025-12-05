@@ -1,0 +1,1363 @@
+{
+    "kolay": [
+        {
+            "q": "5 + 7 = ?",
+            "a": "12",
+            "type": "classic"
+        },
+        {
+            "q": "12 - 8 = ?",
+            "a": "4",
+            "type": "classic"
+        },
+        {
+            "q": "6 x 7 = ?",
+            "a": "42",
+            "type": "classic"
+        },
+        {
+            "q": "100 / 4 = ?",
+            "a": "25",
+            "type": "classic"
+        },
+        {
+            "q": "15 + 15 = ?",
+            "a": "30",
+            "type": "classic"
+        },
+        {
+            "q": "20 - 5 = ?",
+            "a": "15",
+            "type": "classic"
+        },
+        {
+            "q": "9 x 3 = ?",
+            "a": "27",
+            "type": "classic"
+        },
+        {
+            "q": "81 / 9 = ?",
+            "a": "9",
+            "type": "classic"
+        },
+        {
+            "q": "3² = ?",
+            "a": "9",
+            "type": "classic"
+        },
+        {
+            "q": "2³ = ?",
+            "a": "8",
+            "type": "classic"
+        },
+        {
+            "q": "10² = ?",
+            "a": "100",
+            "type": "classic"
+        },
+        {
+            "q": "5³ = ?",
+            "a": "125",
+            "type": "classic"
+        },
+        {
+            "q": "√16 = ?",
+            "a": "4",
+            "type": "classic"
+        },
+        {
+            "q": "√81 = ?",
+            "a": "9",
+            "type": "classic"
+        },
+        {
+            "q": "√25 = ?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "√49 = ?",
+            "a": "7",
+            "type": "classic"
+        },
+        {
+            "q": "2x = 10 ise x kaçtır?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "x + 5 = 15 ise x kaçtır?",
+            "a": "10",
+            "type": "classic"
+        },
+        {
+            "q": "3x - 6 = 9 ise x kaçtır?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "x/4 = 3 ise x kaçtır?",
+            "a": "12",
+            "type": "classic"
+        },
+        {
+            "q": "100'ün %20'si kaçtır?",
+            "a": "20",
+            "type": "classic"
+        },
+        {
+            "q": "50'nin %10'u kaçtır?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "8 + 9 = ?",
+            "a": "17",
+            "type": "classic"
+        },
+        {
+            "q": "25 - 13 = ?",
+            "a": "12",
+            "type": "classic"
+        },
+        {
+            "q": "7 x 8 = ?",
+            "a": "56",
+            "type": "classic"
+        },
+        {
+            "q": "72 / 8 = ?",
+            "a": "9",
+            "type": "classic"
+        },
+        {
+            "q": "11 + 14 = ?",
+            "a": "25",
+            "type": "classic"
+        },
+        {
+            "q": "30 - 12 = ?",
+            "a": "18",
+            "type": "classic"
+        },
+        {
+            "q": "5 x 9 = ?",
+            "a": "45",
+            "type": "classic"
+        },
+        {
+            "q": "64 / 8 = ?",
+            "a": "8",
+            "type": "classic"
+        },
+        {
+            "q": "4² = ?",
+            "a": "16",
+            "type": "classic"
+        },
+        {
+            "q": "6² = ?",
+            "a": "36",
+            "type": "classic"
+        },
+        {
+            "q": "7² = ?",
+            "a": "49",
+            "type": "classic"
+        },
+        {
+            "q": "8² = ?",
+            "a": "64",
+            "type": "classic"
+        },
+        {
+            "q": "√36 = ?",
+            "a": "6",
+            "type": "classic"
+        },
+        {
+            "q": "√64 = ?",
+            "a": "8",
+            "type": "classic"
+        },
+        {
+            "q": "√100 = ?",
+            "a": "10",
+            "type": "classic"
+        },
+        {
+            "q": "√4 = ?",
+            "a": "2",
+            "type": "classic"
+        },
+        {
+            "q": "x + 7 = 20 ise x kaçtır?",
+            "a": "13",
+            "type": "classic"
+        },
+        {
+            "q": "x - 4 = 10 ise x kaçtır?",
+            "a": "14",
+            "type": "classic"
+        },
+        {
+            "q": "5x = 25 ise x kaçtır?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "x/2 = 8 ise x kaçtır?",
+            "a": "16",
+            "type": "classic"
+        },
+        {
+            "q": "200'ün %10'u kaçtır?",
+            "a": "20",
+            "type": "classic"
+        },
+        {
+            "q": "80'in %25'i kaçtır?",
+            "a": "20",
+            "type": "classic"
+        },
+        {
+            "q": "40'ın %50'si kaçtır?",
+            "a": "20",
+            "type": "classic"
+        },
+        {
+            "q": "13 + 18 = ?",
+            "a": "31",
+            "type": "classic"
+        },
+        {
+            "q": "45 - 27 = ?",
+            "a": "18",
+            "type": "classic"
+        },
+        {
+            "q": "8 x 6 = ?",
+            "a": "48",
+            "type": "classic"
+        },
+        {
+            "q": "56 / 7 = ?",
+            "a": "8",
+            "type": "classic"
+        },
+        {
+            "q": "22 + 19 = ?",
+            "a": "41",
+            "type": "classic"
+        },
+        {
+            "q": "50 - 23 = ?",
+            "a": "27",
+            "type": "classic"
+        },
+        {
+            "q": "9 x 4 = ?",
+            "a": "36",
+            "type": "classic"
+        },
+        {
+            "q": "48 / 6 = ?",
+            "a": "8",
+            "type": "classic"
+        },
+        {
+            "q": "9² = ?",
+            "a": "81",
+            "type": "classic"
+        },
+        {
+            "q": "1² = ?",
+            "a": "1",
+            "type": "classic"
+        },
+        {
+            "q": "11² = ?",
+            "a": "121",
+            "type": "classic"
+        },
+        {
+            "q": "12² = ?",
+            "a": "144",
+            "type": "classic"
+        },
+        {
+            "q": "3³ = ?",
+            "a": "27",
+            "type": "classic"
+        },
+        {
+            "q": "4³ = ?",
+            "a": "64",
+            "type": "classic"
+        },
+        {
+            "q": "1³ = ?",
+            "a": "1",
+            "type": "classic"
+        },
+        {
+            "q": "√9 = ?",
+            "a": "3",
+            "type": "classic"
+        },
+        {
+            "q": "√1 = ?",
+            "a": "1",
+            "type": "classic"
+        },
+        {
+            "q": "√121 = ?",
+            "a": "11",
+            "type": "classic"
+        },
+        {
+            "q": "√144 = ?",
+            "a": "12",
+            "type": "classic"
+        },
+        {
+            "q": "x + 3 = 12 ise x kaçtır?",
+            "a": "9",
+            "type": "classic"
+        },
+        {
+            "q": "x - 6 = 8 ise x kaçtır?",
+            "a": "14",
+            "type": "classic"
+        },
+        {
+            "q": "4x = 20 ise x kaçtır?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "x/5 = 4 ise x kaçtır?",
+            "a": "20",
+            "type": "classic"
+        },
+        {
+            "q": "x + 8 = 25 ise x kaçtır?",
+            "a": "17",
+            "type": "classic"
+        },
+        {
+            "q": "x - 9 = 11 ise x kaçtır?",
+            "a": "20",
+            "type": "classic"
+        },
+        {
+            "q": "6x = 18 ise x kaçtır?",
+            "a": "3",
+            "type": "classic"
+        },
+        {
+            "q": "x/3 = 7 ise x kaçtır?",
+            "a": "21",
+            "type": "classic"
+        },
+        {
+            "q": "150'nin %20'si kaçtır?",
+            "a": "30",
+            "type": "classic"
+        },
+        {
+            "q": "60'ın %50'si kaçtır?",
+            "a": "30",
+            "type": "classic"
+        },
+        {
+            "q": "90'ın %10'u kaçtır?",
+            "a": "9",
+            "type": "classic"
+        },
+        {
+            "q": "120'nin %25'i kaçtır?",
+            "a": "30",
+            "type": "classic"
+        },
+        {
+            "q": "16 + 24 = ?",
+            "a": "40",
+            "type": "classic"
+        },
+        {
+            "q": "55 - 28 = ?",
+            "a": "27",
+            "type": "classic"
+        },
+        {
+            "q": "7 x 7 = ?",
+            "a": "49",
+            "type": "classic"
+        },
+        {
+            "q": "63 / 7 = ?",
+            "a": "9",
+            "type": "classic"
+        },
+        {
+            "q": "19 + 23 = ?",
+            "a": "42",
+            "type": "classic"
+        },
+        {
+            "q": "60 - 35 = ?",
+            "a": "25",
+            "type": "classic"
+        },
+        {
+            "q": "8 x 9 = ?",
+            "a": "72",
+            "type": "classic"
+        },
+        {
+            "q": "54 / 6 = ?",
+            "a": "9",
+            "type": "classic"
+        },
+        {
+            "q": "27 + 36 = ?",
+            "a": "63",
+            "type": "classic"
+        },
+        {
+            "q": "80 - 42 = ?",
+            "a": "38",
+            "type": "classic"
+        },
+        {
+            "q": "9 x 9 = ?",
+            "a": "81",
+            "type": "classic"
+        },
+        {
+            "q": "45 / 5 = ?",
+            "a": "9",
+            "type": "classic"
+        },
+        {
+            "q": "32 + 29 = ?",
+            "a": "61",
+            "type": "classic"
+        },
+        {
+            "q": "70 - 38 = ?",
+            "a": "32",
+            "type": "classic"
+        },
+        {
+            "q": "6 x 9 = ?",
+            "a": "54",
+            "type": "classic"
+        },
+        {
+            "q": "42 / 6 = ?",
+            "a": "7",
+            "type": "classic"
+        },
+        {
+            "q": "25 + 37 = ?",
+            "a": "62",
+            "type": "classic"
+        },
+        {
+            "q": "90 - 47 = ?",
+            "a": "43",
+            "type": "classic"
+        },
+        {
+            "q": "5 x 11 = ?",
+            "a": "55",
+            "type": "classic"
+        },
+        {
+            "q": "96 / 8 = ?",
+            "a": "12",
+            "type": "classic"
+        },
+        {
+            "q": "44 + 38 = ?",
+            "a": "82",
+            "type": "classic"
+        },
+        {
+            "q": "100 - 56 = ?",
+            "a": "44",
+            "type": "classic"
+        }
+    ],
+    "orta": [
+        {
+            "q": "f(x)=x² türevi?",
+            "a": "2x",
+            "type": "classic"
+        },
+        {
+            "q": "f(x)=3x türevi?",
+            "a": "3",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (5) = ?",
+            "a": "0",
+            "type": "classic"
+        },
+        {
+            "q": "∫ x dx = ?",
+            "a": "x^2/2",
+            "type": "classic"
+        },
+        {
+            "q": "∫ 3 dx = ?",
+            "a": "3x",
+            "type": "classic"
+        },
+        {
+            "q": "2x + 3 = 11 ise x kaçtır?",
+            "a": "4",
+            "type": "classic"
+        },
+        {
+            "q": "4x - 5 = 15 ise x kaçtır?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "3x + 2 = 2x + 10 ise x kaçtır?",
+            "a": "8",
+            "type": "classic"
+        },
+        {
+            "q": "5x - 3 = 2x + 6 ise x kaçtır?",
+            "a": "3",
+            "type": "classic"
+        },
+        {
+            "q": "3:4 = 6:x ise x kaçtır?",
+            "a": "8",
+            "type": "classic"
+        },
+        {
+            "q": "5:2 = x:8 ise x kaçtır?",
+            "a": "20",
+            "type": "classic"
+        },
+        {
+            "q": "log₁₀(100) = ?",
+            "a": "2",
+            "type": "classic"
+        },
+        {
+            "q": "log₂(32) = ?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "ln(e) = ?",
+            "a": "1",
+            "type": "classic"
+        },
+        {
+            "q": "Bir karenin alanı 64 ise bir kenarı kaçtır?",
+            "a": "8",
+            "type": "classic"
+        },
+        {
+            "q": "Dairenin çevresi formülü nedir?",
+            "a": "2πr",
+            "type": "classic"
+        },
+        {
+            "q": "Bir üçgenin iç açılarının toplamı kaçtır?",
+            "a": "180",
+            "type": "classic"
+        },
+        {
+            "q": "sin(90°) = ?",
+            "a": "1",
+            "type": "classic"
+        },
+        {
+            "q": "cos(0°) = ?",
+            "a": "1",
+            "type": "classic"
+        },
+        {
+            "q": "tan(45°) = ?",
+            "a": "1",
+            "type": "classic"
+        },
+        {
+            "q": "4! (4 Faktöriyel) = ?",
+            "a": "24",
+            "type": "classic"
+        },
+        {
+            "q": "15 mod 4 = ?",
+            "a": "3",
+            "type": "classic"
+        },
+        {
+            "q": "f(x)=4x² türevi?",
+            "a": "8x",
+            "type": "classic"
+        },
+        {
+            "q": "f(x)=x³+2x türevi?",
+            "a": "3x^2+2",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (7x) = ?",
+            "a": "7",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (x⁴) = ?",
+            "a": "4x^3",
+            "type": "classic"
+        },
+        {
+            "q": "∫ 5 dx = ?",
+            "a": "5x",
+            "type": "classic"
+        },
+        {
+            "q": "∫ 4x dx = ?",
+            "a": "2x^2",
+            "type": "classic"
+        },
+        {
+            "q": "3x + 7 = 22 ise x kaçtır?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "6x - 8 = 28 ise x kaçtır?",
+            "a": "6",
+            "type": "classic"
+        },
+        {
+            "q": "7x + 5 = 4x + 20 ise x kaçtır?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "8x - 12 = 3x + 13 ise x kaçtır?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "2:5 = 8:x ise x kaçtır?",
+            "a": "20",
+            "type": "classic"
+        },
+        {
+            "q": "7:3 = x:9 ise x kaçtır?",
+            "a": "21",
+            "type": "classic"
+        },
+        {
+            "q": "log₁₀(1000) = ?",
+            "a": "3",
+            "type": "classic"
+        },
+        {
+            "q": "log₂(8) = ?",
+            "a": "3",
+            "type": "classic"
+        },
+        {
+            "q": "log₅(25) = ?",
+            "a": "2",
+            "type": "classic"
+        },
+        {
+            "q": "ln(e²) = ?",
+            "a": "2",
+            "type": "classic"
+        },
+        {
+            "q": "Bir karenin alanı 100 ise bir kenarı kaçtır?",
+            "a": "10",
+            "type": "classic"
+        },
+        {
+            "q": "Dairenin alanı formülü nedir?",
+            "a": "πr^2",
+            "type": "classic"
+        },
+        {
+            "q": "Dikdörtgenin alanı formülü nedir?",
+            "a": "a*b",
+            "type": "classic"
+        },
+        {
+            "q": "Bir dörtgenin iç açılarının toplamı kaçtır?",
+            "a": "360",
+            "type": "classic"
+        },
+        {
+            "q": "sin(30°) = ?",
+            "a": "1/2",
+            "type": "classic"
+        },
+        {
+            "q": "cos(90°) = ?",
+            "a": "0",
+            "type": "classic"
+        },
+        {
+            "q": "sin(0°) = ?",
+            "a": "0",
+            "type": "classic"
+        },
+        {
+            "q": "tan(0°) = ?",
+            "a": "0",
+            "type": "classic"
+        },
+        {
+            "q": "5! (5 Faktöriyel) = ?",
+            "a": "120",
+            "type": "classic"
+        },
+        {
+            "q": "3! (3 Faktöriyel) = ?",
+            "a": "6",
+            "type": "classic"
+        },
+        {
+            "q": "17 mod 5 = ?",
+            "a": "2",
+            "type": "classic"
+        },
+        {
+            "q": "23 mod 7 = ?",
+            "a": "2",
+            "type": "classic"
+        },
+        {
+            "q": "f(x)=2x³ türevi?",
+            "a": "6x^2",
+            "type": "classic"
+        },
+        {
+            "q": "f(x)=x⁴ türevi?",
+            "a": "4x^3",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (x⁵) = ?",
+            "a": "5x^4",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (10) = ?",
+            "a": "0",
+            "type": "classic"
+        },
+        {
+            "q": "∫ 2 dx = ?",
+            "a": "2x",
+            "type": "classic"
+        },
+        {
+            "q": "∫ x³ dx = ?",
+            "a": "x^4/4",
+            "type": "classic"
+        },
+        {
+            "q": "4x + 9 = 33 ise x kaçtır?",
+            "a": "6",
+            "type": "classic"
+        },
+        {
+            "q": "5x - 7 = 18 ise x kaçtır?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "9x + 4 = 5x + 24 ise x kaçtır?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "6x - 10 = 2x + 14 ise x kaçtır?",
+            "a": "6",
+            "type": "classic"
+        },
+        {
+            "q": "4:7 = 12:x ise x kaçtır?",
+            "a": "21",
+            "type": "classic"
+        },
+        {
+            "q": "9:2 = x:6 ise x kaçtır?",
+            "a": "27",
+            "type": "classic"
+        },
+        {
+            "q": "log₁₀(10) = ?",
+            "a": "1",
+            "type": "classic"
+        },
+        {
+            "q": "log₂(16) = ?",
+            "a": "4",
+            "type": "classic"
+        },
+        {
+            "q": "log₃(9) = ?",
+            "a": "2",
+            "type": "classic"
+        },
+        {
+            "q": "ln(1) = ?",
+            "a": "0",
+            "type": "classic"
+        },
+        {
+            "q": "Bir karenin alanı 144 ise bir kenarı kaçtır?",
+            "a": "12",
+            "type": "classic"
+        },
+        {
+            "q": "Üçgenin alanı formülü nedir?",
+            "a": "(a*h)/2",
+            "type": "classic"
+        },
+        {
+            "q": "Küpün hacmi formülü nedir?",
+            "a": "a^3",
+            "type": "classic"
+        },
+        {
+            "q": "Bir beşgenin iç açılarının toplamı kaçtır?",
+            "a": "540",
+            "type": "classic"
+        },
+        {
+            "q": "sin(60°) = ?",
+            "a": "√3/2",
+            "type": "classic"
+        },
+        {
+            "q": "cos(60°) = ?",
+            "a": "1/2",
+            "type": "classic"
+        },
+        {
+            "q": "cos(45°) = ?",
+            "a": "√2/2",
+            "type": "classic"
+        },
+        {
+            "q": "sin(45°) = ?",
+            "a": "√2/2",
+            "type": "classic"
+        },
+        {
+            "q": "6! (6 Faktöriyel) = ?",
+            "a": "720",
+            "type": "classic"
+        },
+        {
+            "q": "0! (0 Faktöriyel) = ?",
+            "a": "1",
+            "type": "classic"
+        },
+        {
+            "q": "25 mod 6 = ?",
+            "a": "1",
+            "type": "classic"
+        },
+        {
+            "q": "30 mod 8 = ?",
+            "a": "6",
+            "type": "classic"
+        },
+        {
+            "q": "f(x)=5x² türevi?",
+            "a": "10x",
+            "type": "classic"
+        },
+        {
+            "q": "f(x)=x²+3x türevi?",
+            "a": "2x+3",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (2x³) = ?",
+            "a": "6x^2",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (8x) = ?",
+            "a": "8",
+            "type": "classic"
+        },
+        {
+            "q": "∫ 7 dx = ?",
+            "a": "7x",
+            "type": "classic"
+        },
+        {
+            "q": "∫ 6x dx = ?",
+            "a": "3x^2",
+            "type": "classic"
+        },
+        {
+            "q": "7x + 6 = 41 ise x kaçtır?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "8x - 9 = 39 ise x kaçtır?",
+            "a": "6",
+            "type": "classic"
+        },
+        {
+            "q": "10x + 7 = 6x + 27 ise x kaçtır?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "12x - 5 = 7x + 20 ise x kaçtır?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "6:11 = 18:x ise x kaçtır?",
+            "a": "33",
+            "type": "classic"
+        },
+        {
+            "q": "log₂(64) = ?",
+            "a": "6",
+            "type": "classic"
+        },
+        {
+            "q": "log₁₀(10000) = ?",
+            "a": "4",
+            "type": "classic"
+        },
+        {
+            "q": "log₄(16) = ?",
+            "a": "2",
+            "type": "classic"
+        },
+        {
+            "q": "Bir altıgenin iç açılarının toplamı kaçtır?",
+            "a": "720",
+            "type": "classic"
+        },
+        {
+            "q": "Dikdörtgenler prizmasının hacmi formülü nedir?",
+            "a": "a*b*c",
+            "type": "classic"
+        },
+        {
+            "q": "cos(30°) = ?",
+            "a": "√3/2",
+            "type": "classic"
+        },
+        {
+            "q": "7! (7 Faktöriyel) = ?",
+            "a": "5040",
+            "type": "classic"
+        }
+    ],
+    "zor": [
+        {
+            "q": "f(x)=x³ türevi?",
+            "a": "3x^2",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (ln x) = ?",
+            "a": "1/x",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (sin x) = ?",
+            "a": "cos x",
+            "type": "classic"
+        },
+        {
+            "q": "∫ 2x dx = ?",
+            "a": "x^2",
+            "type": "classic"
+        },
+        {
+            "q": "∫ x² dx (İntegrali)",
+            "a": "x^3/3",
+            "type": "classic"
+        },
+        {
+            "q": "Varyans(2,4,6,8) = ?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "5'in 3'lü permütasyonu P(5,3) = ?",
+            "a": "60",
+            "type": "classic"
+        },
+        {
+            "q": "5'in 3'lü kombinasyonu C(5,3) = ?",
+            "a": "10",
+            "type": "classic"
+        },
+        {
+            "q": "lim x→0 (sin x / x)",
+            "a": "1",
+            "type": "classic"
+        },
+        {
+            "q": "lim x→∞ (1/x)",
+            "a": "0",
+            "type": "classic"
+        },
+        {
+            "q": "i² (Sanal sayı) = ?",
+            "a": "-1",
+            "type": "classic"
+        },
+        {
+            "q": "ln(e³) = ?",
+            "a": "3",
+            "type": "classic"
+        },
+        {
+            "q": "log₃(27) = ?",
+            "a": "3",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (cos x) = ?",
+            "a": "-sin x",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (e^x) = ?",
+            "a": "e^x",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (tan x) = ?",
+            "a": "sec^2 x",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (x^n) = ?",
+            "a": "nx^(n-1)",
+            "type": "classic"
+        },
+        {
+            "q": "∫ cos x dx = ?",
+            "a": "sin x",
+            "type": "classic"
+        },
+        {
+            "q": "∫ sin x dx = ?",
+            "a": "-cos x",
+            "type": "classic"
+        },
+        {
+            "q": "∫ e^x dx = ?",
+            "a": "e^x",
+            "type": "classic"
+        },
+        {
+            "q": "∫ 1/x dx = ?",
+            "a": "ln|x|",
+            "type": "classic"
+        },
+        {
+            "q": "∫ x³ dx = ?",
+            "a": "x^4/4",
+            "type": "classic"
+        },
+        {
+            "q": "∫ x⁴ dx = ?",
+            "a": "x^5/5",
+            "type": "classic"
+        },
+        {
+            "q": "6'nın 2'li permütasyonu P(6,2) = ?",
+            "a": "30",
+            "type": "classic"
+        },
+        {
+            "q": "7'nin 3'lü permütasyonu P(7,3) = ?",
+            "a": "210",
+            "type": "classic"
+        },
+        {
+            "q": "6'nın 3'lü kombinasyonu C(6,3) = ?",
+            "a": "20",
+            "type": "classic"
+        },
+        {
+            "q": "4'ün 2'li kombinasyonu C(4,2) = ?",
+            "a": "6",
+            "type": "classic"
+        },
+        {
+            "q": "lim x→0 (x²/x)",
+            "a": "0",
+            "type": "classic"
+        },
+        {
+            "q": "lim x→∞ (1/x²)",
+            "a": "0",
+            "type": "classic"
+        },
+        {
+            "q": "lim x→2 (x² - 4)/(x - 2)",
+            "a": "4",
+            "type": "classic"
+        },
+        {
+            "q": "lim x→0 (tan x / x)",
+            "a": "1",
+            "type": "classic"
+        },
+        {
+            "q": "i³ (Sanal sayı) = ?",
+            "a": "-i",
+            "type": "classic"
+        },
+        {
+            "q": "i⁴ (Sanal sayı) = ?",
+            "a": "1",
+            "type": "classic"
+        },
+        {
+            "q": "(2+3i) + (1+2i) = ?",
+            "a": "3+5i",
+            "type": "classic"
+        },
+        {
+            "q": "ln(e⁴) = ?",
+            "a": "4",
+            "type": "classic"
+        },
+        {
+            "q": "ln(e⁵) = ?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "log₂(128) = ?",
+            "a": "7",
+            "type": "classic"
+        },
+        {
+            "q": "log₅(125) = ?",
+            "a": "3",
+            "type": "classic"
+        },
+        {
+            "q": "log₁₀(1) = ?",
+            "a": "0",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (x² + 3x) = ?",
+            "a": "2x+3",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (x³ - 2x²) = ?",
+            "a": "3x^2-4x",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (5x⁴) = ?",
+            "a": "20x^3",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (ln(2x)) = ?",
+            "a": "1/x",
+            "type": "classic"
+        },
+        {
+            "q": "∫ 5x dx = ?",
+            "a": "5x^2/2",
+            "type": "classic"
+        },
+        {
+            "q": "∫ 3x² dx = ?",
+            "a": "x^3",
+            "type": "classic"
+        },
+        {
+            "q": "∫ (2x + 3) dx = ?",
+            "a": "x^2+3x",
+            "type": "classic"
+        },
+        {
+            "q": "Ortalama(1,2,3,4,5) = ?",
+            "a": "3",
+            "type": "classic"
+        },
+        {
+            "q": "Medyan(1,3,5,7,9) = ?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "Medyan(2,4,6,8) = ?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "Bir madeni para 3 kez atıldığında 3 tura gelme olasılığı?",
+            "a": "1/8",
+            "type": "classic"
+        },
+        {
+            "q": "Bir zarda çift sayı gelme olasılığı?",
+            "a": "1/2",
+            "type": "classic"
+        },
+        {
+            "q": "8'in 3'lü permütasyonu P(8,3) = ?",
+            "a": "336",
+            "type": "classic"
+        },
+        {
+            "q": "4'ün 4'lü permütasyonu P(4,4) = ?",
+            "a": "24",
+            "type": "classic"
+        },
+        {
+            "q": "7'nin 2'li kombinasyonu C(7,2) = ?",
+            "a": "21",
+            "type": "classic"
+        },
+        {
+            "q": "lim x→3 (x² - 9)/(x - 3)",
+            "a": "6",
+            "type": "classic"
+        },
+        {
+            "q": "lim x→1 (x³ - 1)/(x - 1)",
+            "a": "3",
+            "type": "classic"
+        },
+        {
+            "q": "lim x→∞ (2x + 3)/(x + 1)",
+            "a": "2",
+            "type": "classic"
+        },
+        {
+            "q": "lim x→0 (cos x - 1)/x",
+            "a": "0",
+            "type": "classic"
+        },
+        {
+            "q": "(1+i)(1-i) = ?",
+            "a": "2",
+            "type": "classic"
+        },
+        {
+            "q": "i⁵ (Sanal sayı) = ?",
+            "a": "i",
+            "type": "classic"
+        },
+        {
+            "q": "ln(1/e) = ?",
+            "a": "-1",
+            "type": "classic"
+        },
+        {
+            "q": "ln(√e) = ?",
+            "a": "1/2",
+            "type": "classic"
+        },
+        {
+            "q": "log₄(64) = ?",
+            "a": "3",
+            "type": "classic"
+        },
+        {
+            "q": "log₁₀(0.1) = ?",
+            "a": "-1",
+            "type": "classic"
+        },
+        {
+            "q": "e^ln(5) = ?",
+            "a": "5",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (x⁵) = ?",
+            "a": "5x^4",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (3e^x) = ?",
+            "a": "3e^x",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (x² + x³) = ?",
+            "a": "2x+3x^2",
+            "type": "classic"
+        },
+        {
+            "q": "∫ 4x³ dx = ?",
+            "a": "x^4",
+            "type": "classic"
+        },
+        {
+            "q": "∫ (x² + 2x) dx = ?",
+            "a": "x^3/3+x^2",
+            "type": "classic"
+        },
+        {
+            "q": "∫ 2e^x dx = ?",
+            "a": "2e^x",
+            "type": "classic"
+        },
+        {
+            "q": "Mod(3,4,5) = ?",
+            "a": "4",
+            "type": "classic"
+        },
+        {
+            "q": "lim x→4 (x² - 16)/(x - 4)",
+            "a": "8",
+            "type": "classic"
+        },
+        {
+            "q": "log₂(256) = ?",
+            "a": "8",
+            "type": "classic"
+        },
+        {
+            "q": "ln(e^10) = ?",
+            "a": "10",
+            "type": "classic"
+        },
+        {
+            "q": "d/dx (sin 2x) = ?",
+            "a": "2cos 2x",
+            "type": "classic"
+        },
+        {
+            "q": "∫ sec²x dx = ?",
+            "a": "tan x",
+            "type": "classic"
+        }
+    ]
+}
