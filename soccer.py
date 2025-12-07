@@ -264,6 +264,9 @@ keeper_stand_img_orig = None
 keeper_holding_ball_img_orig = None
 keeper_cry_img_orig = None
 
+# Joysticks list (module-level)
+joysticks = []
+
 def load_all_images():
     """Load all images after pygame is initialized"""
     global BASE_PATH, GOAL_PATH, GRASS_PATH, FANS_PATH, BALL_PATH
@@ -368,6 +371,41 @@ def load_all_images():
         print("Created fallback keeper_cry image")
     
     print("All images loaded successfully")
+
+# ------------------------------------------------
+# JOYSTICK INITIALIZATION
+# ------------------------------------------------
+def init_joysticks():
+    """Bağlı joystick'leri başlatır, hatalı cihazları atlar."""
+    global joysticks
+    joysticks = []
+    
+    print(f"\n🔍 Joystick taraması başlatılıyor... (Algılanan: {pygame.joystick.get_count()})")
+    
+    # Kaç joystick varsa o kadar döngü kurar
+    for i in range(pygame.joystick.get_count()): 
+        try:
+            joy = pygame.joystick.Joystick(i)
+            joy.init()
+            joysticks.append(joy)
+            
+            # Detaylı bilgi göster
+            num_buttons = joy.get_numbuttons()
+            num_axes = joy.get_numaxes()
+            num_hats = joy.get_numhats()
+            
+            print(f"  ✅ Joystick {i}: {joy.get_name()}")
+            print(f"     - Butonlar: {num_buttons}, Eksenler: {num_axes}, HAT (D-pad): {num_hats}")
+            
+        except pygame.error as e:
+            # Eğer bir cihaz başlatılamazsa, onu atla
+            print(f"  ❌ HATA: Joystick {i} başlatılamadı: {e}. Atlanıyor.")
+            
+    if joysticks:
+        print(f"\n✅ Toplam {len(joysticks)} aktif joystick bağlandı.")
+        print("💡 İPUCU: Butonları test etmek için herhangi bir butona basın (konsolda göreceksiniz)\n")
+    else:
+        print("\n⚠️ Hiçbir joystick algılanmadı.\n")
 
 # ------------------------------------------------
 # GAME STATE - SHOOTER FIRST
@@ -1048,16 +1086,8 @@ def run_game(quit_pygame=True):
     if screen is None or clock is None:
         init_soccer_pygame()
     
-    # Initialize joysticks list
-    joysticks = []
-    for i in range(pygame.joystick.get_count()):
-        try:
-            joy = pygame.joystick.Joystick(i)
-            joy.init()
-            joysticks.append(joy)
-            print(f"Joystick {i} ({joy.get_name()}) initialized")
-        except Exception as e:
-            print(f"Error initializing joystick {i}: {e}")
+    # Initialize joysticks using the same logic as math_quiz_final_last_edit.py
+    init_joysticks()
     
     while True:
         for event in pygame.event.get():
@@ -1067,23 +1097,9 @@ def run_game(quit_pygame=True):
             
             # Handle joystick device connection/disconnection
             if event.type == pygame.JOYDEVICEADDED:
-                try:
-                    joy = pygame.joystick.Joystick(event.device_index)
-                    joy.init()
-                    if event.device_index < len(joysticks):
-                        joysticks[event.device_index] = joy
-                    else:
-                        while len(joysticks) <= event.device_index:
-                            joysticks.append(None)
-                        joysticks[event.device_index] = joy
-                    print(f"Joystick {event.device_index} ({joy.get_name()}) connected")
-                except Exception as e:
-                    print(f"Error initializing joystick {event.device_index}: {e}")
-            
+                init_joysticks()  # Re-initialize all joysticks
             if event.type == pygame.JOYDEVICEREMOVED:
-                if event.device_index < len(joysticks):
-                    joysticks[event.device_index] = None
-                print(f"Joystick {event.device_index} disconnected")
+                init_joysticks()  # Re-initialize all joysticks
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_f:
