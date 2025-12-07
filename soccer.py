@@ -22,6 +22,9 @@ def init_soccer_pygame():
     if not pygame.get_init():
         pygame.init()
     
+    # Initialize joysticks
+    pygame.joystick.init()
+    
     # Check if we already have a screen (from main game)
     # If not, create a new one
     if screen is None:
@@ -443,6 +446,10 @@ class GameState:
         # Track when result phase started (for delay before closing)
         self.result_start_time = None
         
+        # Joystick state tracking
+        self.shooter_selected_direction = None  # Currently selected direction for shooter
+        self.keeper_selected_zone = None  # Currently selected zone for keeper
+        
         # Scaled images
         self.scale_images()
         self.update_keeper_zone()
@@ -639,6 +646,10 @@ class GameState:
         self.keeper_decision = None
         self.shooter_choice_display = None
         self.keeper_choice_display = None
+        
+        # Reset joystick state
+        self.shooter_selected_direction = None
+        self.keeper_selected_zone = None
         
         self.ball_pos = [self.original_positions['ball'][0] * self.scale_x,
                         self.original_positions['ball'][1] * self.scale_y]
@@ -964,16 +975,18 @@ def draw():
         screen.blit(help_bg, (game.screen_w//2 - 250, game.screen_h//2 - 90))
         
         help1 = font.render("PENALTY SHOOTOUT - SHOOTER FIRST", True, (255, 255, 200))
-        help2 = title_font.render("SHOOTER MUST CHOOSE FIRST (WASD keys)", True, (100, 255, 100))
-        help3 = title_font.render("KEEPER CHOOSES AFTER (Arrow keys: L/M/R)", True, (255, 100, 100))
-        help4 = title_font.render("Shooter: WASD to choose shot direction", True, (200, 255, 200))
-        help5 = title_font.render("Press any key to start", True, (255, 200, 100))
+        help2 = title_font.render("SHOOTER MUST CHOOSE FIRST (Joystick 0)", True, (100, 255, 100))
+        help3 = title_font.render("KEEPER CHOOSES AFTER (Joystick 1)", True, (255, 100, 100))
+        help4 = title_font.render("Shooter: Joystick 0 - D-pad to choose, Left button to shoot", True, (200, 255, 200))
+        help5 = title_font.render("Keeper: Joystick 1 - D-pad to choose, Left button to defend", True, (255, 200, 200))
+        help6 = title_font.render("Press any key or joystick button to start", True, (255, 200, 100))
         
-        screen.blit(help1, (game.screen_w//2 - help1.get_width()//2, game.screen_h//2 - 70))
-        screen.blit(help2, (game.screen_w//2 - help2.get_width()//2, game.screen_h//2 - 30))
-        screen.blit(help3, (game.screen_w//2 - help3.get_width()//2, game.screen_h//2))
-        screen.blit(help4, (game.screen_w//2 - help4.get_width()//2, game.screen_h//2 + 30))
-        screen.blit(help5, (game.screen_w//2 - help5.get_width()//2, game.screen_h//2 + 60))
+        screen.blit(help1, (game.screen_w//2 - help1.get_width()//2, game.screen_h//2 - 90))
+        screen.blit(help2, (game.screen_w//2 - help2.get_width()//2, game.screen_h//2 - 50))
+        screen.blit(help3, (game.screen_w//2 - help3.get_width()//2, game.screen_h//2 - 20))
+        screen.blit(help4, (game.screen_w//2 - help4.get_width()//2, game.screen_h//2 + 10))
+        screen.blit(help5, (game.screen_w//2 - help5.get_width()//2, game.screen_h//2 + 40))
+        screen.blit(help6, (game.screen_w//2 - help6.get_width()//2, game.screen_h//2 + 70))
     
     # Current turn instructions
     elif game.game_phase == "shooter_turn":
@@ -983,7 +996,7 @@ def draw():
         
         if not game.shooter_decision:
             instr1 = title_font.render("SHOOTER'S TURN: Choose where to shoot", True, (200, 255, 200))
-            instr2 = title_font.render("W=Top, A=Left, S=Bottom, D=Right (combine for corners)", True, (150, 255, 150))
+            instr2 = title_font.render("Joystick 0: D-pad to choose direction, Left button to shoot", True, (150, 255, 150))
             screen.blit(instr1, (game.screen_w//2 - instr1.get_width()//2, game.screen_h - 80))
             screen.blit(instr2, (game.screen_w//2 - instr2.get_width()//2, game.screen_h - 50))
         else:
@@ -998,7 +1011,7 @@ def draw():
         
         if not game.keeper_decision:
             instr1 = title_font.render("KEEPER'S TURN: Choose where to dive", True, (255, 200, 200))
-            instr2 = title_font.render("LEFT=Left, RIGHT=Right, UP/DOWN=Middle", True, (255, 150, 150))
+            instr2 = title_font.render("Joystick 1: D-pad Left=Left, Right=Right, Up/Down=Middle, Left button to defend", True, (255, 150, 150))
             screen.blit(instr1, (game.screen_w//2 - instr1.get_width()//2, game.screen_h - 80))
             screen.blit(instr2, (game.screen_w//2 - instr2.get_width()//2, game.screen_h - 50))
     
@@ -1035,11 +1048,42 @@ def run_game(quit_pygame=True):
     if screen is None or clock is None:
         init_soccer_pygame()
     
+    # Initialize joysticks list
+    joysticks = []
+    for i in range(pygame.joystick.get_count()):
+        try:
+            joy = pygame.joystick.Joystick(i)
+            joy.init()
+            joysticks.append(joy)
+            print(f"Joystick {i} ({joy.get_name()}) initialized")
+        except Exception as e:
+            print(f"Error initializing joystick {i}: {e}")
+    
     while True:
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
                 sys.exit()
+            
+            # Handle joystick device connection/disconnection
+            if event.type == pygame.JOYDEVICEADDED:
+                try:
+                    joy = pygame.joystick.Joystick(event.device_index)
+                    joy.init()
+                    if event.device_index < len(joysticks):
+                        joysticks[event.device_index] = joy
+                    else:
+                        while len(joysticks) <= event.device_index:
+                            joysticks.append(None)
+                        joysticks[event.device_index] = joy
+                    print(f"Joystick {event.device_index} ({joy.get_name()}) connected")
+                except Exception as e:
+                    print(f"Error initializing joystick {event.device_index}: {e}")
+            
+            if event.type == pygame.JOYDEVICEREMOVED:
+                if event.device_index < len(joysticks):
+                    joysticks[event.device_index] = None
+                print(f"Joystick {event.device_index} disconnected")
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_f:
@@ -1049,61 +1093,86 @@ def run_game(quit_pygame=True):
                 if game.game_phase == "instructions":
                     if event.key not in [pygame.K_f, pygame.K_r]:
                         game.game_phase = "shooter_turn"
+            
+            # JOYSTICK HAT (D-PAD) MOTION - for direction selection and confirmation
+            if event.type == pygame.JOYHATMOTION:
+                joy_id = event.joy
+                hat_value = event.value
+                hat_x, hat_y = hat_value
                 
-                # Next shot - REMOVED (no longer needed)
-                # if event.key == pygame.K_r:
-                #     if game.ready_for_next_shot:
-                #         game.reset_for_next_shot()
+                # SHOOTER CONTROLS (Joystick 0) - D-pad for direction selection
+                if joy_id == 0 and game.game_phase == "shooter_turn" and not game.shooter_decision:
+                    # If D-pad left is pressed and a direction is already selected, confirm
+                    if hat_x == -1 and hat_y == 0 and game.shooter_selected_direction is not None:
+                        game.shooter_makes_decision(game.shooter_selected_direction)
+                    else:
+                        # Otherwise, use D-pad for direction selection
+                        shooter_direction = None
+                        
+                        # Determine direction based on D-pad
+                        if hat_x == -1 and hat_y == 0:  # Left
+                            shooter_direction = "left"
+                        elif hat_x == 1 and hat_y == 0:  # Right
+                            shooter_direction = "right"
+                        elif hat_x == 0 and hat_y == -1:  # Up
+                            shooter_direction = "top"
+                        elif hat_x == 0 and hat_y == 1:  # Down
+                            shooter_direction = "bottom"
+                        elif hat_x == -1 and hat_y == -1:  # Up-Left
+                            shooter_direction = "top-left"
+                        elif hat_x == 1 and hat_y == -1:  # Up-Right
+                            shooter_direction = "top-right"
+                        elif hat_x == -1 and hat_y == 1:  # Down-Left
+                            shooter_direction = "bottom-left"
+                        elif hat_x == 1 and hat_y == 1:  # Down-Right
+                            shooter_direction = "bottom-right"
+                        
+                        if shooter_direction:
+                            game.shooter_selected_direction = shooter_direction
                 
-                # SHOOTER CONTROLS (WASD) - ONLY during shooter's turn
-                if game.game_phase == "shooter_turn" and not game.shooter_decision:
-                    shooter_direction = None
-                    
-                    # Determine direction based on WASD
-                    if event.key == pygame.K_w:  # Top
-                        shooter_direction = "top"
-                    elif event.key == pygame.K_s:  # Bottom
-                        shooter_direction = "bottom"
-                    elif event.key == pygame.K_a:  # Left
-                        shooter_direction = "left"
-                    elif event.key == pygame.K_d:  # Right
-                        shooter_direction = "right"
-                    
-                    # Handle combined directions (if another key is already pressed)
-                    keys = pygame.key.get_pressed()
-                    if shooter_direction:
-                        if shooter_direction == "top" and keys[pygame.K_a]:
-                            shooter_direction = "top-left"
-                        elif shooter_direction == "top" and keys[pygame.K_d]:
-                            shooter_direction = "top-right"
-                        elif shooter_direction == "bottom" and keys[pygame.K_a]:
-                            shooter_direction = "bottom-left"
-                        elif shooter_direction == "bottom" and keys[pygame.K_d]:
-                            shooter_direction = "bottom-right"
-                        elif shooter_direction == "left" and keys[pygame.K_w]:
-                            shooter_direction = "top-left"
-                        elif shooter_direction == "left" and keys[pygame.K_s]:
-                            shooter_direction = "bottom-left"
-                        elif shooter_direction == "right" and keys[pygame.K_w]:
-                            shooter_direction = "top-right"
-                        elif shooter_direction == "right" and keys[pygame.K_s]:
-                            shooter_direction = "bottom-right"
-                    
-                    if shooter_direction:
+                # KEEPER CONTROLS (Joystick 1) - D-pad for zone selection
+                elif joy_id == 1 and game.game_phase == "keeper_turn" and not game.keeper_decision:
+                    # If D-pad left is pressed and a zone is already selected, confirm
+                    if hat_x == -1 and hat_y == 0 and game.keeper_selected_zone is not None:
+                        game.keeper_makes_decision(game.keeper_selected_zone)
+                    else:
+                        # Otherwise, use D-pad for zone selection
+                        keeper_zone = None
+                        
+                        if hat_x == -1:  # Left
+                            keeper_zone = "left"
+                        elif hat_x == 1:  # Right
+                            keeper_zone = "right"
+                        elif hat_y == -1 or hat_y == 1:  # Up or Down
+                            keeper_zone = "middle"
+                        
+                        if keeper_zone:
+                            game.keeper_selected_zone = keeper_zone
+            
+            # JOYSTICK BUTTON PRESS - left button to confirm action
+            if event.type == pygame.JOYBUTTONDOWN:
+                joy_id = event.joy
+                button = event.button
+                
+                # Start the game from instructions (any joystick button)
+                if game.game_phase == "instructions":
+                    game.game_phase = "shooter_turn"
+                
+                # SHOOTER CONTROLS (Joystick 0) - Left button to confirm/shoot
+                # Using button 0 as the "left arrow button" equivalent
+                if joy_id == 0 and game.game_phase == "shooter_turn" and not game.shooter_decision:
+                    # Use button 0 as the confirm button (left arrow button)
+                    if button == 0:
+                        # If a direction is selected, use it; otherwise default to middle
+                        shooter_direction = game.shooter_selected_direction or "top"
                         game.shooter_makes_decision(shooter_direction)
                 
-                # KEEPER CONTROLS (Arrow keys) - ONLY during keeper's turn, AFTER shooter
-                elif game.game_phase == "keeper_turn" and not game.keeper_decision:
-                    keeper_zone = None
-                    
-                    if event.key == pygame.K_LEFT:
-                        keeper_zone = "left"
-                    elif event.key == pygame.K_RIGHT:
-                        keeper_zone = "right"
-                    elif event.key == pygame.K_UP or event.key == pygame.K_DOWN:
-                        keeper_zone = "middle"
-                    
-                    if keeper_zone:
+                # KEEPER CONTROLS (Joystick 1) - Left button to confirm/defend
+                elif joy_id == 1 and game.game_phase == "keeper_turn" and not game.keeper_decision:
+                    # Use button 0 as the confirm button (left arrow button)
+                    if button == 0:
+                        # If a zone is selected, use it; otherwise default to middle
+                        keeper_zone = game.keeper_selected_zone or "middle"
                         game.keeper_makes_decision(keeper_zone)
 
         # Ball movement (after shot is executed)
