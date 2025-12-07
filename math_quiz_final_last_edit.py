@@ -507,22 +507,32 @@ class Game:
         """Bağlı joystick'leri başlatır, hatalı cihazları atlar."""
         self.joysticks = []
         
+        print(f"\n🔍 Joystick taraması başlatılıyor... (Algılanan: {pygame.joystick.get_count()})")
+        
         # Kaç joystick varsa o kadar döngü kurar
         for i in range(pygame.joystick.get_count()): 
             try:
-                # BU BÖLÜM HATA VEREBİLİR
                 joy = pygame.joystick.Joystick(i)
                 joy.init()
                 self.joysticks.append(joy)
-                print(f"  ✅ Joystick {i} ({joy.get_name()}) başarıyla bağlandı.")
+                
+                # Detaylı bilgi göster
+                num_buttons = joy.get_numbuttons()
+                num_axes = joy.get_numaxes()
+                num_hats = joy.get_numhats()
+                
+                print(f"  ✅ Joystick {i}: {joy.get_name()}")
+                print(f"     - Butonlar: {num_buttons}, Eksenler: {num_axes}, HAT (D-pad): {num_hats}")
+                
             except pygame.error as e:
                 # Eğer bir cihaz başlatılamazsa, onu atla
                 print(f"  ❌ HATA: Joystick {i} başlatılamadı: {e}. Atlanıyor.")
                 
         if self.joysticks:
-            print(f"Toplam {len(self.joysticks)} aktif joystick var.")
+            print(f"\n✅ Toplam {len(self.joysticks)} aktif joystick bağlandı.")
+            print("💡 İPUCU: Butonları test etmek için herhangi bir butona basın (konsolda göreceksiniz)\n")
         else:
-            print("Hiçbir joystick algılanmadı.")
+            print("\n⚠️ Hiçbir joystick algılanmadı.\n")
 
     def handle_joystick_mcq_navigation(self, joy_id, direction):
         """
@@ -531,26 +541,29 @@ class Game:
         """
         if self.state == "QUIZ" and self.settings["mode"] == "MCQ":
             # Tek kişilik mod - herhangi bir joystick kullanabilir
-            if direction == "up":
-                self.mcq_selected_index = (self.mcq_selected_index - 1) % len(self.mcq_buttons)
-            elif direction == "down":
-                self.mcq_selected_index = (self.mcq_selected_index + 1) % len(self.mcq_buttons)
-            self.sound_manager.play("click", self.settings["sfx"])
+            if self.mcq_buttons:  # Check if buttons exist
+                if direction == "up":
+                    self.mcq_selected_index = (self.mcq_selected_index - 1) % len(self.mcq_buttons)
+                elif direction == "down":
+                    self.mcq_selected_index = (self.mcq_selected_index + 1) % len(self.mcq_buttons)
+                self.sound_manager.play("click", self.settings["sfx"])
             
         elif self.state == "TWO_PLAYER_QUIZ" and self.two_player_mode == "MCQ":
             # İki kişilik mod - joystick 0 = P1, joystick 1 = P2
             if joy_id == 0 and not self.two_player_q_answered["p1"]:
-                if direction == "up":
-                    self.p1_mcq_selected_index = (self.p1_mcq_selected_index - 1) % len(self.p1_mcq_buttons)
-                elif direction == "down":
-                    self.p1_mcq_selected_index = (self.p1_mcq_selected_index + 1) % len(self.p1_mcq_buttons)
-                self.sound_manager.play("click", self.settings["sfx"])
+                if self.p1_mcq_buttons:  # Check if buttons exist
+                    if direction == "up":
+                        self.p1_mcq_selected_index = (self.p1_mcq_selected_index - 1) % len(self.p1_mcq_buttons)
+                    elif direction == "down":
+                        self.p1_mcq_selected_index = (self.p1_mcq_selected_index + 1) % len(self.p1_mcq_buttons)
+                    self.sound_manager.play("click", self.settings["sfx"])
             elif joy_id == 1 and not self.two_player_q_answered["p2"]:
-                if direction == "up":
-                    self.p2_mcq_selected_index = (self.p2_mcq_selected_index - 1) % len(self.p2_mcq_buttons)
-                elif direction == "down":
-                    self.p2_mcq_selected_index = (self.p2_mcq_selected_index + 1) % len(self.p2_mcq_buttons)
-                self.sound_manager.play("click", self.settings["sfx"])
+                if self.p2_mcq_buttons:  # Check if buttons exist
+                    if direction == "up":
+                        self.p2_mcq_selected_index = (self.p2_mcq_selected_index - 1) % len(self.p2_mcq_buttons)
+                    elif direction == "down":
+                        self.p2_mcq_selected_index = (self.p2_mcq_selected_index + 1) % len(self.p2_mcq_buttons)
+                    self.sound_manager.play("click", self.settings["sfx"])
 
     def handle_joystick_mcq_select(self, joy_id):
         """
@@ -570,6 +583,91 @@ class Game:
                 if self.p2_mcq_buttons and 0 <= self.p2_mcq_selected_index < len(self.p2_mcq_buttons):
                     btn, val = self.p2_mcq_buttons[self.p2_mcq_selected_index]
                     self.check_two_player_answer("p2", val)
+    
+    def handle_joystick_button_press(self, joy_id, button_id):
+        """
+        Joystick butonu basıldığında genel işleme.
+        Tüm menüler ve modlar için çalışır.
+        """
+        # Debug: Print button press info (always visible)
+        if self.joysticks and joy_id < len(self.joysticks):
+            joy_name = self.joysticks[joy_id].get_name()
+            print(f"🎮 Joystick {joy_id} ({joy_name}): Button {button_id} pressed | State: {self.state}")
+        else:
+            print(f"🎮 Joystick {joy_id}: Button {button_id} pressed | State: {self.state} (⚠️ Joystick not found in list)")
+        
+        # MCQ Quiz mode - select answer
+        if self.state == "QUIZ" and self.settings["mode"] == "MCQ":
+            print(f"   → Handling MCQ select in QUIZ mode")
+            self.handle_joystick_mcq_select(joy_id)
+            return
+        
+        # Two Player MCQ Quiz mode
+        if self.state == "TWO_PLAYER_QUIZ" and self.two_player_mode == "MCQ":
+            print(f"   → Handling MCQ select in TWO_PLAYER_QUIZ mode")
+            self.handle_joystick_mcq_select(joy_id)
+            return
+        
+        # Menu navigation - simulate click at center for main menu buttons
+        if self.state == "MENU":
+            print(f"   → Handling button press in MENU")
+            # Simulate click on center to activate buttons
+            mouse_pos = pygame.mouse.get_pos()
+            handled = False
+            for btn in self.buttons["menu"]:
+                if btn.update(mouse_pos, True):
+                    handled = True
+                    print(f"   → Menu button clicked: {btn.text}")
+                    break
+            if not handled:
+                if self.mode_toggle_button.update(mouse_pos, True):
+                    print(f"   → Mode toggle button clicked")
+                elif self.gamemodes_button.update(mouse_pos, True):
+                    print(f"   → Gamemodes button clicked")
+            return
+        
+        # Modes menu
+        if self.state == "MODES_MENU":
+            print(f"   → Handling button press in MODES_MENU")
+            mouse_pos = pygame.mouse.get_pos()
+            for btn in self.buttons["modes_menu"]:
+                if btn.update(mouse_pos, True):
+                    print(f"   → Modes menu button clicked: {btn.text}")
+                    return
+            if self.buttons["back"].update(mouse_pos, True):
+                print(f"   → Back button clicked")
+            return
+        
+        # Two player setup
+        if self.state == "TWO_PLAYER_SETUP":
+            print(f"   → Handling button press in TWO_PLAYER_SETUP")
+            mouse_pos = pygame.mouse.get_pos()
+            for btn in self.buttons["two_player_setup"]:
+                if btn.update(mouse_pos, True):
+                    print(f"   → Two player setup button clicked: {btn.text}")
+                    return
+            if self.buttons["back_to_modes"].update(mouse_pos, True):
+                print(f"   → Back to modes button clicked")
+            elif self.two_player_mode_toggle_button.update(mouse_pos, True):
+                print(f"   → Two player mode toggle clicked")
+            return
+        
+        # Game over screens - go back to menu
+        if self.state in ["GAMEOVER", "TWO_PLAYER_GAMEOVER"]:
+            print(f"   → Returning to menu from {self.state}")
+            self.set_state("MENU")
+            return
+        
+        # Settings, Highscore, Admin - go back to menu
+        if self.state in ["SETTINGS", "HIGHSCORE", "ADMIN"]:
+            print(f"   → Handling button press in {self.state}")
+            mouse_pos = (self.CX, self.CY)
+            if self.buttons["back"].update(mouse_pos, True):
+                print(f"   → Back button clicked")
+            return
+        
+        # If we reach here, button was pressed but no action was taken
+        print(f"   ⚠️ Button press not handled for state: {self.state}")
 
     def toggle_two_player_mode(self):
         """İki kişilik mod için MCQ ve Klasik mod arasında geçiş yapar."""
@@ -1658,9 +1756,12 @@ class Game:
                 # --- JOYSTICK BUTON BASMA ---
                 if event.type == pygame.JOYBUTTONDOWN:
                     joy_id = event.joy
-                    # A butonu (genellikle 0) veya X butonu (genellikle 2) ile seçim
-                    if event.button in [0, 2]:
-                        self.handle_joystick_mcq_select(joy_id)
+                    button_id = event.button
+                    
+                    # Expanded button support: 0 (A/Cross), 1 (B/Circle), 2 (X/Square), 3 (Y/Triangle)
+                    # Also support common button numbers that work on most controllers
+                    if button_id in [0, 1, 2, 3, 4, 5, 6, 7]:
+                        self.handle_joystick_button_press(joy_id, button_id)
                 
                 # --- TEK KİŞİLİK QUIZ INPUT ---
                 if self.state == "QUIZ" and self.settings["mode"] == "Classic":
