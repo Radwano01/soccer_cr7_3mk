@@ -1380,17 +1380,42 @@ def run_penalty_shootout(goalkeeper, attacker):
         
         # Map joysticks to roles based on who is attacker and goalkeeper
         # In math quiz: p1 = joystick 0, p2 = joystick 1
+        # This ensures each player only controls their assigned role
         if attacker == "p1":
             game.shooter_joystick_id = 0  # Player 1 (joystick 0) is shooter
         elif attacker == "p2":
             game.shooter_joystick_id = 1  # Player 2 (joystick 1) is shooter
+        else:
+            # Default fallback
+            game.shooter_joystick_id = 0
+            print(f"⚠️ Warning: Unknown attacker '{attacker}', defaulting to joystick 0")
         
         if goalkeeper == "p1":
             game.keeper_joystick_id = 0  # Player 1 (joystick 0) is keeper
         elif goalkeeper == "p2":
             game.keeper_joystick_id = 1  # Player 2 (joystick 1) is keeper
+        else:
+            # Default fallback
+            game.keeper_joystick_id = 1
+            print(f"⚠️ Warning: Unknown goalkeeper '{goalkeeper}', defaulting to joystick 1")
+        
+        # Safety check: Ensure attacker and goalkeeper are different players
+        if attacker == goalkeeper:
+            print(f"⚠️ ERROR: Attacker and goalkeeper are the same player ({attacker})! This should not happen.")
+            # Force different joysticks to prevent one player controlling both roles
+            if attacker == "p1":
+                game.keeper_joystick_id = 1  # Force p2 to be keeper
+            else:
+                game.keeper_joystick_id = 0  # Force p1 to be keeper
+        
+        # Final safety check: Ensure joysticks are different
+        if game.shooter_joystick_id == game.keeper_joystick_id:
+            print(f"⚠️ ERROR: Shooter and keeper are using the same joystick ({game.shooter_joystick_id})! Preventing conflict.")
+            # Swap keeper to different joystick
+            game.keeper_joystick_id = 1 if game.shooter_joystick_id == 0 else 0
         
         print(f"🎮 Joystick mapping: Shooter = Joystick {game.shooter_joystick_id} ({attacker}), Keeper = Joystick {game.keeper_joystick_id} ({goalkeeper})")
+        print(f"✅ Role separation: Each player controls only their assigned role")
         
         # Run the game and get result (don't quit pygame so main game continues)
         print("Starting penalty shootout game loop")
