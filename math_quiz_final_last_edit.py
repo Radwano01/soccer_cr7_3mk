@@ -440,6 +440,8 @@ class Game:
         self.penalty_goalkeeper = None  # "p1" or "p2"
         self.penalty_attacker = None  # "p1" or "p2"
         self.penalty_handled = False  # Flag to ensure penalty is only handled once
+        self.penalty_start_time = None  # Time when penalty started (to pause timer)
+        self.time_remaining_before_penalty = None  # Time remaining when penalty started
         
         # JOYSTICK DEĞİŞKENLERİ
         self.joysticks = []  # Bağlı joystick'ler
@@ -1006,6 +1008,13 @@ class Game:
         
         self.penalty_handled = True
         
+        # PAUSE TIMER: Store current time remaining and when penalty started
+        if self.state == "TWO_PLAYER_QUIZ":
+            elapsed = time.time() - self.start_time
+            self.time_remaining_before_penalty = max(0, self.settings["time_per_question"] - elapsed)
+            self.penalty_start_time = time.time()
+            print(f"⏸️ Timer paused. Time remaining: {self.time_remaining_before_penalty:.2f}s")
+        
         # Show penalty screen briefly
         self.draw()
         pygame.display.flip()
@@ -1085,6 +1094,21 @@ class Game:
                     }
                 self.sound_manager.play("wrong", self.settings["sfx"])
             
+            # RESUME TIMER: Adjust start_time to account for paused time
+            if self.state == "TWO_PLAYER_QUIZ" and self.penalty_start_time is not None:
+                penalty_duration = time.time() - self.penalty_start_time
+                # Adjust start_time so that remaining time is preserved
+                # New start_time should be: current_time - (original_elapsed_time)
+                # But we want remaining time to be the same as before penalty
+                if self.time_remaining_before_penalty is not None:
+                    # Calculate what start_time should be to preserve remaining time
+                    # remaining = time_per_question - (current_time - start_time)
+                    # So: start_time = current_time - (time_per_question - remaining)
+                    self.start_time = time.time() - (self.settings["time_per_question"] - self.time_remaining_before_penalty)
+                    print(f"▶️ Timer resumed. Time remaining: {self.time_remaining_before_penalty:.2f}s (penalty took {penalty_duration:.2f}s)")
+                self.penalty_start_time = None
+                self.time_remaining_before_penalty = None
+            
             # Show result briefly
             self.draw()
             pygame.display.flip()
@@ -1094,6 +1118,16 @@ class Game:
             print(f"Error in penalty shootout: {e}")
             import traceback
             traceback.print_exc()
+            
+            # RESUME TIMER even on error
+            if self.state == "TWO_PLAYER_QUIZ" and self.penalty_start_time is not None:
+                penalty_duration = time.time() - self.penalty_start_time
+                if self.time_remaining_before_penalty is not None:
+                    self.start_time = time.time() - (self.settings["time_per_question"] - self.time_remaining_before_penalty)
+                    print(f"▶️ Timer resumed after error. Time remaining: {self.time_remaining_before_penalty:.2f}s")
+                self.penalty_start_time = None
+                self.time_remaining_before_penalty = None
+            
             self.feedback = {
                 "msg": "Penalty shootout error. Continuing...",
                 "color": COLORS["RED"],
@@ -1102,7 +1136,7 @@ class Game:
             # Default to goal scored if there's an error
             keeper_saved = False
         
-        # Reset penalty state
+        # Reset penalty state (but keep timer pause info until after next question starts)
         self.penalty_active = False
         self.penalty_goalkeeper = None
         self.penalty_attacker = None
@@ -1111,8 +1145,12 @@ class Game:
         # Return to questions page (TWO_PLAYER_QUIZ state)
         self.set_state("TWO_PLAYER_QUIZ")
         
-        # Continue to next question
+        # Continue to next question (this will reset the timer with start_two_player_turn)
         self.next_two_player_question()
+        
+        # Clear timer pause info after next question starts (timer is reset anyway)
+        self.penalty_start_time = None
+        self.time_remaining_before_penalty = None
     
     def end_two_player_game(self):
         if self.p1_score > self.p2_score:
@@ -1508,8 +1546,13 @@ class Game:
 
         # ---------------- ZAMANLAYICI VE GERİ BİLDİRİM ----------------
 
-        elapsed = time.time() - self.start_time
-        remaining = max(0, self.settings["time_per_question"] - elapsed)
+        # Don't count down timer if penalty is active
+        if self.penalty_active and self.penalty_start_time is not None:
+            # Use stored remaining time (timer is paused)
+            remaining = self.time_remaining_before_penalty if self.time_remaining_before_penalty is not None else 0
+        else:
+            elapsed = time.time() - self.start_time
+            remaining = max(0, self.settings["time_per_question"] - elapsed)
         
         time_text = FONTS["title"].render(f"{int(remaining)}s", True, COLORS["WHITE"])
         time_x = self.CX - 60
@@ -1522,7 +1565,9 @@ class Game:
         
         SCREEN.blit(time_text, (time_x, time_y))
 
-        if remaining <= 0:
+        # Only check timer expiration if penalty is not active
+        # This prevents crash when timer reaches 0 during penalty shootout
+        if remaining <= 0 and not (self.penalty_active and self.penalty_start_time is not None):
             self.feedback = {"msg": "Süre Doldu!", "color": COLORS["RED"], "time": time.time()}
             self.next_two_player_question()
             return
