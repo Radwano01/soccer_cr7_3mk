@@ -1291,19 +1291,23 @@ def run_game(quit_pygame=True):
                 if joy_id == game.shooter_joystick_id and game.game_phase == "shooter_turn" and not game.shooter_decision:
                     # Accept button 0, 1, or 2 as confirm button (common gamepad buttons)
                     if button in [0, 1, 2]:
-                        # If a direction is selected, use it; otherwise default to middle
-                        shooter_direction = game.shooter_selected_direction or "top"
-                        print(f"✅ Shooter confirming with button {button}: {shooter_direction}")
-                        game.shooter_makes_decision(shooter_direction)
+                        # Only confirm if a direction has been selected - NO AUTOMATIC DEFAULT
+                        if game.shooter_selected_direction is not None:
+                            print(f"✅ Shooter confirming with button {button}: {game.shooter_selected_direction}")
+                            game.shooter_makes_decision(game.shooter_selected_direction)
+                        else:
+                            print(f"⚠️ Shooter must select a direction first before confirming!")
                 
                 # KEEPER CONTROLS - Any button to confirm/defend (use mapped joystick)
                 elif joy_id == game.keeper_joystick_id and game.game_phase == "keeper_turn" and not game.keeper_decision:
                     # Accept button 0, 1, or 2 as confirm button (common gamepad buttons)
                     if button in [0, 1, 2]:
-                        # If a zone is selected, use it; otherwise default to middle
-                        keeper_zone = game.keeper_selected_zone or "middle"
-                        print(f"✅ Keeper confirming with button {button}: {keeper_zone}")
-                        game.keeper_makes_decision(keeper_zone)
+                        # Only confirm if a zone has been selected - NO AUTOMATIC DEFAULT
+                        if game.keeper_selected_zone is not None:
+                            print(f"✅ Keeper confirming with button {button}: {game.keeper_selected_zone}")
+                            game.keeper_makes_decision(game.keeper_selected_zone)
+                        else:
+                            print(f"⚠️ Keeper must select a zone first before confirming!")
 
         # Ball movement (after shot is executed)
         if game.ball_in_air and not game.ball_stopped:
