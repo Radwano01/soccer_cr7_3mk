@@ -981,28 +981,56 @@ class Game:
             p1_correct = self.two_player_q_correct["p1"]
             p2_correct = self.two_player_q_correct["p2"]
             
-            # Penalty condition: one is correct, other is incorrect
+            # Check if both players answered correctly
             if p1_correct is not None and p2_correct is not None:
-                if (p1_correct and not p2_correct) or (not p1_correct and p2_correct):
+                if p1_correct and p2_correct:
+                    # Both answered correctly - award points to both and skip penalty shootout
+                    self.p1_score += 10
+                    self.p2_score += 10
+                    self.feedback = {
+                        "msg": "Both players answered correctly! +10 points each!",
+                        "color": COLORS["GREEN"],
+                        "time": time.time()
+                    }
+                    self.sound_manager.play("correct", self.settings["sfx"])
+                    print(f"✅ Both players correct: P1={p1_correct}, P2={p2_correct} - Awarding points to both, skipping penalty")
+                    
+                    # Show feedback briefly before moving to next question
+                    self.draw()
+                    pygame.display.flip()
+                    time.sleep(2.0)
+                    
+                    # Proceed to next question
+                    if self.both_players_answered:
+                        print(f"▶️ Timer will restart for next question (both correct)")
+                    self.next_two_player_question()
+                    return
+                
+                # Penalty condition: one is correct, other is incorrect
+                elif (p1_correct and not p2_correct) or (not p1_correct and p2_correct):
                     # PAUSE TIMER BEFORE triggering penalty shootout
                     elapsed = time.time() - self.start_time
                     self.time_remaining_before_penalty = max(0, self.settings["time_per_question"] - elapsed)
                     self.penalty_start_time = time.time()
                     print(f"⏸️ Timer paused when penalty triggered. Time remaining: {self.time_remaining_before_penalty:.2f}s")
                     
-                    # Trigger penalty shootout
+                    # Assign roles based on who answered correctly
+                    # Correct answerer = goalkeeper (defends)
+                    # Wrong answerer = attacker/shooter (tries to score)
                     if p1_correct:
-                        self.penalty_goalkeeper = "p1"
-                        self.penalty_attacker = "p2"
-                    else:
-                        self.penalty_goalkeeper = "p2"
-                        self.penalty_attacker = "p1"
+                        self.penalty_goalkeeper = "p1"  # P1 answered correctly -> goalkeeper
+                        self.penalty_attacker = "p2"     # P2 answered wrong -> attacker/shooter
+                        print(f"🎯 Role assignment: P1 (correct) = Goalkeeper, P2 (wrong) = Attacker/Shooter")
+                    else:  # p2_correct is True
+                        self.penalty_goalkeeper = "p2"    # P2 answered correctly -> goalkeeper
+                        self.penalty_attacker = "p1"     # P1 answered wrong -> attacker/shooter
+                        print(f"🎯 Role assignment: P2 (correct) = Goalkeeper, P1 (wrong) = Attacker/Shooter")
                     
                     self.penalty_active = True
                     self.set_state("PENALTY_SHOOTOUT")
                     return
             
-            # No penalty condition, proceed to next question normally
+            # No penalty condition (both wrong or other edge case), proceed to next question normally
             # RESTART TIMER for next question (both players answered but no penalty)
             if self.both_players_answered:
                 print(f"▶️ Timer will restart for next question (no penalty condition)")
@@ -1046,9 +1074,18 @@ class Game:
         
         # Call the penalty shootout game as a separate process
         try:
+            # Verify roles are assigned correctly
+            if not self.penalty_goalkeeper or not self.penalty_attacker:
+                raise ValueError(f"Penalty roles not set! goalkeeper={self.penalty_goalkeeper}, attacker={self.penalty_attacker}")
+            
             # Get player names for display
             goalkeeper_name = "Player 1" if self.penalty_goalkeeper == "p1" else "Player 2"
             attacker_name = "Player 1" if self.penalty_attacker == "p1" else "Player 2"
+            
+            # Debug: Print role assignment
+            print(f"🏆 Penalty Shootout Roles:")
+            print(f"   Goalkeeper (answered correctly): {self.penalty_goalkeeper} ({goalkeeper_name})")
+            print(f"   Attacker/Shooter (answered wrong): {self.penalty_attacker} ({attacker_name})")
             
             # Get the absolute path to soccer.py
             # Try multiple methods to get the correct path
@@ -1071,9 +1108,11 @@ class Game:
             # Exit code 0 = saved (True), exit code 1 = goal scored (False)
             print(f"Running penalty shootout: {soccer_path}")
             print(f"Python executable: {sys.executable}")
+            print(f"Passing arguments to soccer.py: goalkeeper={self.penalty_goalkeeper}, attacker={self.penalty_attacker}")
             
             # Run the subprocess with player role information as arguments
             # Pass goalkeeper and attacker IDs so soccer.py can map joysticks correctly
+            # Arguments: [python_executable, soccer_path, goalkeeper_id, attacker_id]
             result = subprocess.run(
                 [sys.executable, soccer_path, self.penalty_goalkeeper, self.penalty_attacker], 
                 capture_output=False,  # Don't capture, let it display
@@ -1093,30 +1132,32 @@ class Game:
                 pass  # If screen restoration fails, continue anyway
             
             # Process result
-            # Only count score if Player 1 answered correctly AND saved as goalkeeper
-            if self.penalty_goalkeeper == "p1" and keeper_saved:
-                # Player 1 answered correctly and saved the ball - award points
-                self.p1_score += 10
-                self.feedback = {
-                    "msg": f"{goalkeeper_name} saved! +10 points to Player 1!",
-                    "color": COLORS["GREEN"],
-                    "time": time.time()
-                }
+            # Award points ONLY if the goalkeeper (who answered correctly) saved the ball
+            # Do NOT award points if a goal was scored (keeper_saved == False)
+            if keeper_saved:
+                # Goalkeeper saved - award points to whoever is the goalkeeper
+                if self.penalty_goalkeeper == "p1":
+                    self.p1_score += 10
+                    self.feedback = {
+                        "msg": f"{goalkeeper_name} saved! +10 points to Player 1!",
+                        "color": COLORS["GREEN"],
+                        "time": time.time()
+                    }
+                elif self.penalty_goalkeeper == "p2":
+                    self.p2_score += 10
+                    self.feedback = {
+                        "msg": f"{goalkeeper_name} saved! +10 points to Player 2!",
+                        "color": COLORS["GREEN"],
+                        "time": time.time()
+                    }
                 self.sound_manager.play("correct", self.settings["sfx"])
             else:
-                # No points awarded in any other case
-                if keeper_saved:
-                    self.feedback = {
-                        "msg": f"{goalkeeper_name} saved! No points awarded.",
-                        "color": COLORS["BLUE"],
-                        "time": time.time()
-                    }
-                else:
-                    self.feedback = {
-                        "msg": f"{attacker_name} scored! No points awarded.",
-                        "color": COLORS["YELLOW"],
-                        "time": time.time()
-                    }
+                # Goal was scored - NO points awarded to anyone
+                self.feedback = {
+                    "msg": f"{attacker_name} scored! No points awarded.",
+                    "color": COLORS["YELLOW"],
+                    "time": time.time()
+                }
                 self.sound_manager.play("wrong", self.settings["sfx"])
             
             # RESUME TIMER: Adjust start_time to account for paused time
