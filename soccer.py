@@ -488,6 +488,10 @@ class GameState:
         self.shooter_selected_direction = None  # Currently selected direction for shooter
         self.keeper_selected_zone = None  # Currently selected zone for keeper
         
+        # Player role mapping (which joystick controls which role)
+        self.shooter_joystick_id = 0  # Default: joystick 0 is shooter
+        self.keeper_joystick_id = 1   # Default: joystick 1 is keeper
+        
         # Scaled images
         self.scale_images()
         self.update_keeper_zone()
@@ -1136,8 +1140,8 @@ def run_game(quit_pygame=True):
                 
                 # Use left stick (axis 0 = X, axis 1 = Y) for direction selection
                 if axis == 0:  # X axis
-                    # SHOOTER CONTROLS (Joystick 0)
-                    if joy_id == 0 and game.game_phase == "shooter_turn" and not game.shooter_decision:
+                    # SHOOTER CONTROLS (use mapped joystick)
+                    if joy_id == game.shooter_joystick_id and game.game_phase == "shooter_turn" and not game.shooter_decision:
                         if value < -0.5:  # Left
                             game.shooter_selected_direction = "left"
                             print(f"📍 Shooter selected direction (axis): left")
@@ -1145,8 +1149,8 @@ def run_game(quit_pygame=True):
                             game.shooter_selected_direction = "right"
                             print(f"📍 Shooter selected direction (axis): right")
                     
-                    # KEEPER CONTROLS (Joystick 1)
-                    elif joy_id == 1 and game.game_phase == "keeper_turn" and not game.keeper_decision:
+                    # KEEPER CONTROLS (use mapped joystick)
+                    elif joy_id == game.keeper_joystick_id and game.game_phase == "keeper_turn" and not game.keeper_decision:
                         if value < -0.5:  # Left
                             game.keeper_selected_zone = "left"
                             print(f"📍 Keeper selected zone (axis): left")
@@ -1155,8 +1159,8 @@ def run_game(quit_pygame=True):
                             print(f"📍 Keeper selected zone (axis): right")
                 
                 elif axis == 1:  # Y axis
-                    # SHOOTER CONTROLS (Joystick 0)
-                    if joy_id == 0 and game.game_phase == "shooter_turn" and not game.shooter_decision:
+                    # SHOOTER CONTROLS (use mapped joystick)
+                    if joy_id == game.shooter_joystick_id and game.game_phase == "shooter_turn" and not game.shooter_decision:
                         if value < -0.5:  # Up
                             game.shooter_selected_direction = "top"
                             print(f"📍 Shooter selected direction (axis): top")
@@ -1164,8 +1168,8 @@ def run_game(quit_pygame=True):
                             game.shooter_selected_direction = "bottom"
                             print(f"📍 Shooter selected direction (axis): bottom")
                     
-                    # KEEPER CONTROLS (Joystick 1)
-                    elif joy_id == 1 and game.game_phase == "keeper_turn" and not game.keeper_decision:
+                    # KEEPER CONTROLS (use mapped joystick)
+                    elif joy_id == game.keeper_joystick_id and game.game_phase == "keeper_turn" and not game.keeper_decision:
                         if abs(value) > 0.5:  # Up or Down = Middle
                             game.keeper_selected_zone = "middle"
                             print(f"📍 Keeper selected zone (axis): middle")
@@ -1206,8 +1210,8 @@ def run_game(quit_pygame=True):
                     game.game_phase = "shooter_turn"
                     continue  # Skip the rest of D-pad handling - don't count this as a shot
                 
-                # SHOOTER CONTROLS (Joystick 0) - D-pad for direction selection
-                if joy_id == 0 and game.game_phase == "shooter_turn" and not game.shooter_decision:
+                # SHOOTER CONTROLS - D-pad for direction selection (use mapped joystick)
+                if joy_id == game.shooter_joystick_id and game.game_phase == "shooter_turn" and not game.shooter_decision:
                     # If D-pad left is pressed and a direction is already selected, confirm
                     if hat_x == -1 and hat_y == 0 and game.shooter_selected_direction is not None:
                         print(f"✅ Shooter confirming direction: {game.shooter_selected_direction}")
@@ -1238,8 +1242,8 @@ def run_game(quit_pygame=True):
                             game.shooter_selected_direction = shooter_direction
                             print(f"📍 Shooter selected direction: {shooter_direction}")
                 
-                # KEEPER CONTROLS (Joystick 1) - D-pad for zone selection
-                elif joy_id == 1 and game.game_phase == "keeper_turn" and not game.keeper_decision:
+                # KEEPER CONTROLS - D-pad for zone selection (use mapped joystick)
+                elif joy_id == game.keeper_joystick_id and game.game_phase == "keeper_turn" and not game.keeper_decision:
                     # If D-pad left is pressed and a zone is already selected, confirm
                     if hat_x == -1 and hat_y == 0 and game.keeper_selected_zone is not None:
                         print(f"✅ Keeper confirming zone: {game.keeper_selected_zone}")
@@ -1283,8 +1287,8 @@ def run_game(quit_pygame=True):
                     game.game_phase = "shooter_turn"
                     continue  # Skip the rest of button handling - don't count this as a shot
                 
-                # SHOOTER CONTROLS (Joystick 0) - Any button to confirm/shoot (for flexibility)
-                if joy_id == 0 and game.game_phase == "shooter_turn" and not game.shooter_decision:
+                # SHOOTER CONTROLS - Any button to confirm/shoot (use mapped joystick)
+                if joy_id == game.shooter_joystick_id and game.game_phase == "shooter_turn" and not game.shooter_decision:
                     # Accept button 0, 1, or 2 as confirm button (common gamepad buttons)
                     if button in [0, 1, 2]:
                         # If a direction is selected, use it; otherwise default to middle
@@ -1292,8 +1296,8 @@ def run_game(quit_pygame=True):
                         print(f"✅ Shooter confirming with button {button}: {shooter_direction}")
                         game.shooter_makes_decision(shooter_direction)
                 
-                # KEEPER CONTROLS (Joystick 1) - Any button to confirm/defend (for flexibility)
-                elif joy_id == 1 and game.game_phase == "keeper_turn" and not game.keeper_decision:
+                # KEEPER CONTROLS - Any button to confirm/defend (use mapped joystick)
+                elif joy_id == game.keeper_joystick_id and game.game_phase == "keeper_turn" and not game.keeper_decision:
                     # Accept button 0, 1, or 2 as confirm button (common gamepad buttons)
                     if button in [0, 1, 2]:
                         # If a zone is selected, use it; otherwise default to middle
@@ -1344,8 +1348,8 @@ def run_penalty_shootout(goalkeeper, attacker):
     Wrapper function for penalty shootout game.
     
     Args:
-        goalkeeper: Name/identifier of the goalkeeper player
-        attacker: Name/identifier of the attacker/penalty taker
+        goalkeeper: Name/identifier of the goalkeeper player ("p1" or "p2")
+        attacker: Name/identifier of the attacker/penalty taker ("p1" or "p2")
     
     Returns:
         True if goalkeeper saved (no goal), False if goal was scored
@@ -1374,6 +1378,20 @@ def run_penalty_shootout(goalkeeper, attacker):
             game.reset_for_next_shot()
             game.game_phase = "instructions"
         
+        # Map joysticks to roles based on who is attacker and goalkeeper
+        # In math quiz: p1 = joystick 0, p2 = joystick 1
+        if attacker == "p1":
+            game.shooter_joystick_id = 0  # Player 1 (joystick 0) is shooter
+        elif attacker == "p2":
+            game.shooter_joystick_id = 1  # Player 2 (joystick 1) is shooter
+        
+        if goalkeeper == "p1":
+            game.keeper_joystick_id = 0  # Player 1 (joystick 0) is keeper
+        elif goalkeeper == "p2":
+            game.keeper_joystick_id = 1  # Player 2 (joystick 1) is keeper
+        
+        print(f"🎮 Joystick mapping: Shooter = Joystick {game.shooter_joystick_id} ({attacker}), Keeper = Joystick {game.keeper_joystick_id} ({goalkeeper})")
+        
         # Run the game and get result (don't quit pygame so main game continues)
         print("Starting penalty shootout game loop")
         result = run_game(quit_pygame=False)
@@ -1390,14 +1408,16 @@ def run_penalty_shootout(goalkeeper, attacker):
 
 # Run the game and exit with return value
 if __name__ == "__main__":
+    import sys
+    
+    # Get player roles from command line arguments if provided
+    goalkeeper = sys.argv[1] if len(sys.argv) > 1 else "p1"
+    attacker = sys.argv[2] if len(sys.argv) > 2 else "p2"
+    
     # Initialize pygame (this will also load images after display is set)
     init_soccer_pygame()
     
-    # Initialize game state
-    if game is None:
-        game = GameState()
-    
-    # Run the game
-    result = run_game()
+    # Run penalty shootout with player roles
+    result = run_penalty_shootout(goalkeeper, attacker)
     print(result)  # Print the result (True or False)
     sys.exit(0 if result else 1)  # Exit code 0 for saved (True), 1 for not saved (False)
