@@ -429,6 +429,7 @@ class Game:
         # Quiz durumunu yönetecek değişkenler
         self.two_player_q_answered = {"p1": False, "p2": False}
         self.two_player_q_correct = {"p1": None, "p2": None}  # Track correctness for penalty detection
+        self.both_players_answered = False  # Flag to track if both players have answered
         self.two_player_quiz_length = 10 # Varsayılan 10 soru
         self.winner = None
         self.two_player_mode = "Classic"  # İki kişilik mod için MCQ/Classic seçimi
@@ -442,6 +443,9 @@ class Game:
         self.penalty_handled = False  # Flag to ensure penalty is only handled once
         self.penalty_start_time = None  # Time when penalty started (to pause timer)
         self.time_remaining_before_penalty = None  # Time remaining when penalty started
+        self.time_remaining_when_both_answered = None  # Time remaining when both players answered
+        self.timer_expired = False  # Flag to track if timer has expired
+        self.timer_expired_time = None  # Time when timer expired (for showing feedback)
         
         # JOYSTICK DEĞİŞKENLERİ
         self.joysticks = []  # Bağlı joystick'ler
@@ -882,6 +886,10 @@ class Game:
         self.start_time = time.time()
         self.two_player_q_answered = {"p1": False, "p2": False}
         self.two_player_q_correct = {"p1": None, "p2": None}  # Reset correctness tracking
+        self.both_players_answered = False  # Reset both players answered flag
+        self.time_remaining_when_both_answered = None  # Reset timer pause info
+        self.timer_expired = False  # Reset timer expired flag
+        self.timer_expired_time = None  # Reset timer expired time
         self.p1_input.text = ""
         self.p2_input.text = ""
         self.p1_input.active = True
@@ -961,6 +969,13 @@ class Game:
         # In MCQ mode, we rely on two_player_q_answered; in Classic mode, we also check input.active
         both_answered = (self.two_player_q_answered["p1"] and self.two_player_q_answered["p2"])
         
+        if both_answered and not self.both_players_answered:
+            # STOP TIMER when both players have answered
+            self.both_players_answered = True
+            elapsed = time.time() - self.start_time
+            self.time_remaining_when_both_answered = max(0, self.settings["time_per_question"] - elapsed)
+            print(f"⏸️ Timer stopped - both players answered. Time remaining: {self.time_remaining_when_both_answered:.2f}s")
+        
         if both_answered:
             # Check for penalty condition: one correct, one incorrect
             p1_correct = self.two_player_q_correct["p1"]
@@ -969,6 +984,12 @@ class Game:
             # Penalty condition: one is correct, other is incorrect
             if p1_correct is not None and p2_correct is not None:
                 if (p1_correct and not p2_correct) or (not p1_correct and p2_correct):
+                    # PAUSE TIMER BEFORE triggering penalty shootout
+                    elapsed = time.time() - self.start_time
+                    self.time_remaining_before_penalty = max(0, self.settings["time_per_question"] - elapsed)
+                    self.penalty_start_time = time.time()
+                    print(f"⏸️ Timer paused when penalty triggered. Time remaining: {self.time_remaining_before_penalty:.2f}s")
+                    
                     # Trigger penalty shootout
                     if p1_correct:
                         self.penalty_goalkeeper = "p1"
@@ -982,6 +1003,9 @@ class Game:
                     return
             
             # No penalty condition, proceed to next question normally
+            # RESTART TIMER for next question (both players answered but no penalty)
+            if self.both_players_answered:
+                print(f"▶️ Timer will restart for next question (no penalty condition)")
             self.next_two_player_question()
     def next_two_player_question(self):
         self.current_q_index += 1
@@ -992,9 +1016,8 @@ class Game:
             # Geri bildirim göster ve ardından yeni turu başlat
             feedback_msg = f"Cevap: {self.quiz_data[self.current_q_index-1]['a']}"
             self.feedback = {"msg": feedback_msg, "color": COLORS["DARK"], "time": time.time()}
-            self.draw()
-            pygame.display.flip()
-            time.sleep(1.5)
+            # Use a short, non-blocking approach - show feedback briefly then start next turn
+            # The feedback display will handle showing it for a moment
             self.start_two_player_turn()
 
     def handle_penalty_shootout(self):
@@ -1008,12 +1031,13 @@ class Game:
         
         self.penalty_handled = True
         
-        # PAUSE TIMER: Store current time remaining and when penalty started
-        if self.state == "TWO_PLAYER_QUIZ":
+        # Timer should already be paused when penalty was triggered
+        # But ensure it's paused if it wasn't already
+        if self.penalty_start_time is None:
             elapsed = time.time() - self.start_time
             self.time_remaining_before_penalty = max(0, self.settings["time_per_question"] - elapsed)
             self.penalty_start_time = time.time()
-            print(f"⏸️ Timer paused. Time remaining: {self.time_remaining_before_penalty:.2f}s")
+            print(f"⏸️ Timer paused in handle_penalty_shootout (fallback). Time remaining: {self.time_remaining_before_penalty:.2f}s")
         
         # Show penalty screen briefly
         self.draw()
@@ -1095,7 +1119,8 @@ class Game:
                 self.sound_manager.play("wrong", self.settings["sfx"])
             
             # RESUME TIMER: Adjust start_time to account for paused time
-            if self.state == "TWO_PLAYER_QUIZ" and self.penalty_start_time is not None:
+            # Do this AFTER the soccer game closes, BEFORE navigating to next question
+            if self.penalty_start_time is not None:
                 penalty_duration = time.time() - self.penalty_start_time
                 # Adjust start_time so that remaining time is preserved
                 # New start_time should be: current_time - (original_elapsed_time)
@@ -1105,7 +1130,7 @@ class Game:
                     # remaining = time_per_question - (current_time - start_time)
                     # So: start_time = current_time - (time_per_question - remaining)
                     self.start_time = time.time() - (self.settings["time_per_question"] - self.time_remaining_before_penalty)
-                    print(f"▶️ Timer resumed. Time remaining: {self.time_remaining_before_penalty:.2f}s (penalty took {penalty_duration:.2f}s)")
+                    print(f"▶️ Timer resumed AFTER soccer game closed. Time remaining: {self.time_remaining_before_penalty:.2f}s (penalty took {penalty_duration:.2f}s)")
                 self.penalty_start_time = None
                 self.time_remaining_before_penalty = None
             
@@ -1120,11 +1145,11 @@ class Game:
             traceback.print_exc()
             
             # RESUME TIMER even on error
-            if self.state == "TWO_PLAYER_QUIZ" and self.penalty_start_time is not None:
+            if self.penalty_start_time is not None:
                 penalty_duration = time.time() - self.penalty_start_time
                 if self.time_remaining_before_penalty is not None:
                     self.start_time = time.time() - (self.settings["time_per_question"] - self.time_remaining_before_penalty)
-                    print(f"▶️ Timer resumed after error. Time remaining: {self.time_remaining_before_penalty:.2f}s")
+                    print(f"▶️ Timer resumed after error. Time remaining: {self.time_remaining_before_penalty:.2f}s (penalty took {penalty_duration:.2f}s)")
                 self.penalty_start_time = None
                 self.time_remaining_before_penalty = None
             
@@ -1546,10 +1571,13 @@ class Game:
 
         # ---------------- ZAMANLAYICI VE GERİ BİLDİRİM ----------------
 
-        # Don't count down timer if penalty is active
+        # Don't count down timer if penalty is active OR if both players have answered
         if self.penalty_active and self.penalty_start_time is not None:
-            # Use stored remaining time (timer is paused)
+            # Use stored remaining time (timer is paused for penalty)
             remaining = self.time_remaining_before_penalty if self.time_remaining_before_penalty is not None else 0
+        elif self.both_players_answered and self.time_remaining_when_both_answered is not None:
+            # Use stored remaining time (timer stopped when both players answered)
+            remaining = self.time_remaining_when_both_answered
         else:
             elapsed = time.time() - self.start_time
             remaining = max(0, self.settings["time_per_question"] - elapsed)
@@ -1565,12 +1593,22 @@ class Game:
         
         SCREEN.blit(time_text, (time_x, time_y))
 
-        # Only check timer expiration if penalty is not active
-        # This prevents crash when timer reaches 0 during penalty shootout
-        if remaining <= 0 and not (self.penalty_active and self.penalty_start_time is not None):
-            self.feedback = {"msg": "Süre Doldu!", "color": COLORS["RED"], "time": time.time()}
-            self.next_two_player_question()
-            return
+        # Only check timer expiration if penalty is not active AND both players haven't answered
+        # This prevents crash when timer reaches 0 during penalty shootout or after both answered
+        if remaining <= 0 and not (self.penalty_active and self.penalty_start_time is not None) and not self.both_players_answered:
+            if not self.timer_expired:
+                # Timer just expired - show feedback and set flag
+                self.timer_expired = True
+                self.timer_expired_time = time.time()
+                self.feedback = {"msg": "Süre Doldu!", "color": COLORS["RED"], "time": time.time()}
+                print(f"⏰ Timer expired. Showing feedback...")
+            elif self.timer_expired_time and (time.time() - self.timer_expired_time) >= 1.5:
+                # Show feedback for 1.5 seconds, then move to next question
+                self.timer_expired = False
+                self.timer_expired_time = None
+                print(f"⏰ Moving to next question after timer expiration")
+                self.next_two_player_question()
+                return
             
         # Geri Bildirim Gösterme
         if time.time() - self.feedback["time"] < 1.5:
