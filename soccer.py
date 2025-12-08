@@ -1087,7 +1087,16 @@ def run_game(quit_pygame=True):
         init_soccer_pygame()
     
     # Initialize joysticks using the same logic as math_quiz_final_last_edit.py
+    # Make sure pygame.joystick is initialized
+    if not pygame.joystick.get_init():
+        pygame.joystick.init()
     init_joysticks()
+    
+    # Print current joystick status
+    print(f"📊 Joystick status: {len(joysticks)} joysticks initialized")
+    for i, joy in enumerate(joysticks):
+        if joy:
+            print(f"   - Joystick {i}: {joy.get_name()}")
     
     while True:
         for event in pygame.event.get():
@@ -1097,9 +1106,69 @@ def run_game(quit_pygame=True):
             
             # Handle joystick device connection/disconnection
             if event.type == pygame.JOYDEVICEADDED:
+                print(f"🔌 Joystick device added: {event.device_index}")
                 init_joysticks()  # Re-initialize all joysticks
             if event.type == pygame.JOYDEVICEREMOVED:
+                print(f"🔌 Joystick device removed: {event.device_index}")
                 init_joysticks()  # Re-initialize all joysticks
+            
+            # JOYSTICK AXIS MOTION - fallback for joysticks without D-pad
+            if event.type == pygame.JOYAXISMOTION:
+                joy_id = event.joy
+                axis = event.axis
+                value = event.value
+                
+                # Check if joystick exists
+                if joy_id >= len(joysticks):
+                    continue
+                if joysticks[joy_id] is None:
+                    continue
+                
+                # Only process if value is significant (dead zone)
+                if abs(value) < 0.5:
+                    continue
+                
+                # Skip instructions screen with any axis movement
+                if game.game_phase == "instructions":
+                    print("🚀 Starting game from instructions (axis) - skipping shot logic")
+                    game.game_phase = "shooter_turn"
+                    continue  # Skip the rest of axis handling - don't count this as a shot
+                
+                # Use left stick (axis 0 = X, axis 1 = Y) for direction selection
+                if axis == 0:  # X axis
+                    # SHOOTER CONTROLS (Joystick 0)
+                    if joy_id == 0 and game.game_phase == "shooter_turn" and not game.shooter_decision:
+                        if value < -0.5:  # Left
+                            game.shooter_selected_direction = "left"
+                            print(f"📍 Shooter selected direction (axis): left")
+                        elif value > 0.5:  # Right
+                            game.shooter_selected_direction = "right"
+                            print(f"📍 Shooter selected direction (axis): right")
+                    
+                    # KEEPER CONTROLS (Joystick 1)
+                    elif joy_id == 1 and game.game_phase == "keeper_turn" and not game.keeper_decision:
+                        if value < -0.5:  # Left
+                            game.keeper_selected_zone = "left"
+                            print(f"📍 Keeper selected zone (axis): left")
+                        elif value > 0.5:  # Right
+                            game.keeper_selected_zone = "right"
+                            print(f"📍 Keeper selected zone (axis): right")
+                
+                elif axis == 1:  # Y axis
+                    # SHOOTER CONTROLS (Joystick 0)
+                    if joy_id == 0 and game.game_phase == "shooter_turn" and not game.shooter_decision:
+                        if value < -0.5:  # Up
+                            game.shooter_selected_direction = "top"
+                            print(f"📍 Shooter selected direction (axis): top")
+                        elif value > 0.5:  # Down
+                            game.shooter_selected_direction = "bottom"
+                            print(f"📍 Shooter selected direction (axis): bottom")
+                    
+                    # KEEPER CONTROLS (Joystick 1)
+                    elif joy_id == 1 and game.game_phase == "keeper_turn" and not game.keeper_decision:
+                        if abs(value) > 0.5:  # Up or Down = Middle
+                            game.keeper_selected_zone = "middle"
+                            print(f"📍 Keeper selected zone (axis): middle")
 
             if event.type == pygame.KEYDOWN:
                 if event.key == pygame.K_f:
@@ -1116,10 +1185,32 @@ def run_game(quit_pygame=True):
                 hat_value = event.value
                 hat_x, hat_y = hat_value
                 
+                # Check if joystick exists
+                if joy_id >= len(joysticks):
+                    print(f"⚠️ Warning: Joystick {joy_id} not found in joysticks list (len={len(joysticks)})")
+                    continue
+                if joysticks[joy_id] is None:
+                    print(f"⚠️ Warning: Joystick {joy_id} is None")
+                    continue
+                
+                # Ignore neutral position (0, 0) - D-pad released
+                if hat_x == 0 and hat_y == 0:
+                    continue
+                
+                # Debug output
+                print(f"🎮 Joystick {joy_id} HAT: ({hat_x}, {hat_y}) | Phase: {game.game_phase}")
+                
+                # Skip instructions screen with any D-pad movement
+                if game.game_phase == "instructions":
+                    print("🚀 Starting game from instructions (D-pad) - skipping shot logic")
+                    game.game_phase = "shooter_turn"
+                    continue  # Skip the rest of D-pad handling - don't count this as a shot
+                
                 # SHOOTER CONTROLS (Joystick 0) - D-pad for direction selection
                 if joy_id == 0 and game.game_phase == "shooter_turn" and not game.shooter_decision:
                     # If D-pad left is pressed and a direction is already selected, confirm
                     if hat_x == -1 and hat_y == 0 and game.shooter_selected_direction is not None:
+                        print(f"✅ Shooter confirming direction: {game.shooter_selected_direction}")
                         game.shooter_makes_decision(game.shooter_selected_direction)
                     else:
                         # Otherwise, use D-pad for direction selection
@@ -1145,11 +1236,13 @@ def run_game(quit_pygame=True):
                         
                         if shooter_direction:
                             game.shooter_selected_direction = shooter_direction
+                            print(f"📍 Shooter selected direction: {shooter_direction}")
                 
                 # KEEPER CONTROLS (Joystick 1) - D-pad for zone selection
                 elif joy_id == 1 and game.game_phase == "keeper_turn" and not game.keeper_decision:
                     # If D-pad left is pressed and a zone is already selected, confirm
                     if hat_x == -1 and hat_y == 0 and game.keeper_selected_zone is not None:
+                        print(f"✅ Keeper confirming zone: {game.keeper_selected_zone}")
                         game.keeper_makes_decision(game.keeper_selected_zone)
                     else:
                         # Otherwise, use D-pad for zone selection
@@ -1164,31 +1257,48 @@ def run_game(quit_pygame=True):
                         
                         if keeper_zone:
                             game.keeper_selected_zone = keeper_zone
+                            print(f"📍 Keeper selected zone: {keeper_zone}")
             
             # JOYSTICK BUTTON PRESS - left button to confirm action
             if event.type == pygame.JOYBUTTONDOWN:
                 joy_id = event.joy
                 button = event.button
                 
-                # Start the game from instructions (any joystick button)
-                if game.game_phase == "instructions":
-                    game.game_phase = "shooter_turn"
+                # Check if joystick exists
+                if joy_id >= len(joysticks):
+                    print(f"⚠️ Warning: Joystick {joy_id} not found in joysticks list (len={len(joysticks)})")
+                    continue
+                if joysticks[joy_id] is None:
+                    print(f"⚠️ Warning: Joystick {joy_id} is None")
+                    continue
                 
-                # SHOOTER CONTROLS (Joystick 0) - Left button to confirm/shoot
-                # Using button 0 as the "left arrow button" equivalent
+                # Debug output
+                joy_name = joysticks[joy_id].get_name() if joy_id < len(joysticks) else "Unknown"
+                print(f"🎮 Joystick {joy_id} ({joy_name}): Button {button} pressed | Phase: {game.game_phase}")
+                
+                # Start the game from instructions (any joystick button)
+                # IMPORTANT: Skip the rest of button handling if we're just starting from instructions
+                if game.game_phase == "instructions":
+                    print("🚀 Starting game from instructions - skipping shot logic")
+                    game.game_phase = "shooter_turn"
+                    continue  # Skip the rest of button handling - don't count this as a shot
+                
+                # SHOOTER CONTROLS (Joystick 0) - Any button to confirm/shoot (for flexibility)
                 if joy_id == 0 and game.game_phase == "shooter_turn" and not game.shooter_decision:
-                    # Use button 0 as the confirm button (left arrow button)
-                    if button == 0:
+                    # Accept button 0, 1, or 2 as confirm button (common gamepad buttons)
+                    if button in [0, 1, 2]:
                         # If a direction is selected, use it; otherwise default to middle
                         shooter_direction = game.shooter_selected_direction or "top"
+                        print(f"✅ Shooter confirming with button {button}: {shooter_direction}")
                         game.shooter_makes_decision(shooter_direction)
                 
-                # KEEPER CONTROLS (Joystick 1) - Left button to confirm/defend
+                # KEEPER CONTROLS (Joystick 1) - Any button to confirm/defend (for flexibility)
                 elif joy_id == 1 and game.game_phase == "keeper_turn" and not game.keeper_decision:
-                    # Use button 0 as the confirm button (left arrow button)
-                    if button == 0:
+                    # Accept button 0, 1, or 2 as confirm button (common gamepad buttons)
+                    if button in [0, 1, 2]:
                         # If a zone is selected, use it; otherwise default to middle
                         keeper_zone = game.keeper_selected_zone or "middle"
+                        print(f"✅ Keeper confirming with button {button}: {keeper_zone}")
                         game.keeper_makes_decision(keeper_zone)
 
         # Ball movement (after shot is executed)
