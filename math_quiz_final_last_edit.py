@@ -707,7 +707,7 @@ class Game:
             Button(x2_sub, y_sub, w_sub, h_sub, "Skorlar", color=COLORS["GRAY"], action=lambda: self.set_state("HIGHSCORE")),
             Button(x3_sub, y_sub, w_sub, h_sub, "Admin Panel", color=COLORS["DARK"], action=lambda: self.set_state("ADMIN")),
             
-            Button(self.CX - 150, y_sub + h_sub + 40, 300, 70, "Çıkış", color=COLORS["RED"], action=lambda: sys.exit())
+            Button(self.CX - 150, y_sub + h_sub + 40, 300, 70, "Çıkış", color=COLORS["RED"], action=lambda: self.cleanup_and_exit())
         ]
         
         # MODLAR MENÜSÜ BUTONLARI
@@ -740,12 +740,34 @@ class Game:
 
 
     def set_state(self, new_state):
+        # Save score if exiting from single player quiz
+        if self.state == "QUIZ" and new_state == "MENU":
+            # User is exiting quiz - save current score if it's a new highscore
+            if self.current_level and self.current_level in ["kolay", "orta", "zor"]:
+                current_highscore = self.highscores.get(self.current_level, 0)
+                if self.score >= current_highscore:
+                    self.highscores[self.current_level] = self.score
+                    try:
+                        DataManager.save_json(FILES["highscore"], self.highscores)
+                        print(f"💾 Score saved on exit: {self.current_level} = {self.score}")
+                    except Exception as e:
+                        print(f"❌ Error saving score on exit: {e}")
+        
         self.state = new_state
-        # İki kişilik quiz bittiğinde skorları sıfırlayalım
+        # Reset scores when returning to MENU
         if new_state == "MENU":
             self.p1_score = 0
             self.p2_score = 0
             self.winner = None
+            # Also reset single player score when returning to menu
+            self.score = 0
+            self.current_level = None
+            self.current_q_index = 0
+            self.quiz_data = []
+        # Reload highscores when entering HIGHSCORE state to show latest data
+        elif new_state == "HIGHSCORE":
+            self.highscores = DataManager.load_json(FILES["highscore"])
+            print(f"📊 Highscores reloaded: {self.highscores}")
         time.sleep(0.1)
 
     # ---------------- TEK KİŞİLİK QUIZ MANTIKLARI ----------------
@@ -765,6 +787,8 @@ class Game:
         self.current_q_index = 0
         self.score = 0
         self.powerups = {"extra": 1, "skip": 1, "hint": 1}
+        # Track when quiz started to prevent immediate answer checks from stale events
+        self.quiz_start_time = time.time()
         self.start_turn()
         self.set_state("QUIZ")
         
@@ -805,15 +829,46 @@ class Game:
                 self.mcq_buttons.append((btn, opt))
 
     def check_answer(self, user_ans):
+        # Ensure we're in single player quiz state before counting score
+        if self.state != "QUIZ":
+            print(f"⚠️ Warning: check_answer called in wrong state: {self.state}")
+            return
+        
+        # Prevent answer checks immediately after quiz starts (within 0.5 seconds)
+        # This prevents stale joystick/button events from menu navigation triggering answers
+        if hasattr(self, 'quiz_start_time') and (time.time() - self.quiz_start_time) < 0.5:
+            print(f"⚠️ Warning: check_answer called too soon after quiz start (ignoring stale event)")
+            return
+        
+        # Validate answer input - prevent empty or None answers
+        if user_ans is None:
+            print(f"⚠️ Warning: check_answer called with None")
+            return
+        
+        # Convert to string and strip whitespace
+        user_ans_str = str(user_ans).strip()
+        if not user_ans_str or len(user_ans_str) == 0:
+            print(f"⚠️ Warning: check_answer called with empty answer")
+            return
+        
+        # Ensure we have valid quiz data
+        if not self.quiz_data or self.current_q_index >= len(self.quiz_data):
+            print(f"⚠️ Warning: Invalid quiz data or question index")
+            return
+        
         correct_ans = self.quiz_data[self.current_q_index]["a"]
-        if Utils.normalize_answer(str(user_ans)) == Utils.normalize_answer(str(correct_ans)):
+        is_correct = Utils.normalize_answer(user_ans_str) == Utils.normalize_answer(str(correct_ans))
+        
+        if is_correct:
             self.score += 10
             self.show_feedback("Doğru! (+10 Puan)", COLORS["GREEN"])
             self.sound_manager.play("correct", self.settings["sfx"])
+            print(f"✅ Correct answer! Score: {self.score} (+10) | Level: {self.current_level} | Mode: {self.settings.get('mode', 'Unknown')}")
         else:
             self.score = max(0, self.score - 5) 
             self.show_feedback(f"Yanlış! Cevap: {correct_ans}", COLORS["RED"])
             self.sound_manager.play("wrong", self.settings["sfx"])
+            print(f"❌ Wrong answer! Score: {self.score} (-5) | Level: {self.current_level} | Mode: {self.settings.get('mode', 'Unknown')}")
         
         self.next_question()
 
@@ -831,9 +886,38 @@ class Game:
             self.start_turn()
 
     def end_game(self):
-        if self.score > self.highscores.get(self.current_level, 0):
+        print(f"🎮 Game ended! Final score: {self.score} | Level: {self.current_level}")
+        print(f"📊 Current highscores before save: {self.highscores}")
+        
+        # Ensure current_level is valid
+        if not self.current_level or self.current_level not in ["kolay", "orta", "zor"]:
+            print(f"⚠️ Warning: Invalid current_level: {self.current_level}")
+            self.set_state("GAMEOVER")
+            return
+        
+        current_highscore = self.highscores.get(self.current_level, 0)
+        print(f"📊 Current highscore for {self.current_level}: {current_highscore}")
+        
+        # Save score if it's greater than or equal to current highscore
+        # (Use >= to update even if equal, and to save first score)
+        if self.score >= current_highscore:
             self.highscores[self.current_level] = self.score
-            DataManager.save_json(FILES["highscore"], self.highscores)
+            try:
+                DataManager.save_json(FILES["highscore"], self.highscores)
+                print(f"🏆 Highscore saved! {self.current_level}: {current_highscore} -> {self.score}")
+                print(f"💾 File saved to: {FILES['highscore']}")
+            except Exception as e:
+                print(f"❌ Error saving highscore: {e}")
+        else:
+            print(f"ℹ️ Score {self.score} did not beat highscore {current_highscore} for {self.current_level}")
+        
+        # Reload highscores to ensure we have the latest data
+        try:
+            self.highscores = DataManager.load_json(FILES["highscore"])
+            print(f"📊 Updated highscores after reload: {self.highscores}")
+        except Exception as e:
+            print(f"❌ Error reloading highscores: {e}")
+        
         self.set_state("GAMEOVER")
 
     def use_powerup(self, p_type):
@@ -1755,12 +1839,23 @@ class Game:
         self.draw_bg()
         self.buttons["back"].draw(SCREEN)
         
+        # Note: Highscores are already reloaded when entering HIGHSCORE state in set_state()
+        # No need to reload every frame - it's inefficient and spams the console
+        
+        # Ensure highscores has all required levels
+        required_levels = ["kolay", "orta", "zor"]
+        for level in required_levels:
+            if level not in self.highscores:
+                self.highscores[level] = 0
+        
         t = FONTS["title"].render("SKORLAR", True, COLORS["BG"])
         SCREEN.blit(t, (self.CX - t.get_width()//2, 100))
         
         y = 250
         card_w, card_h = 600, 100
-        for lvl, scr in self.highscores.items():
+        # Display scores in order: kolay, orta, zor
+        for lvl in required_levels:
+            scr = self.highscores.get(lvl, 0)
             card = pygame.Rect(self.CX - card_w//2, y, card_w, card_h)
             pygame.draw.rect(SCREEN, COLORS["WHITE"], card, border_radius=15)
             
@@ -1834,6 +1929,29 @@ class Game:
 
 
     # ---------------- MAIN LOOP ----------------
+    
+    def cleanup_and_exit(self):
+        """Cleanup function to reset highscores and scores before exiting the app"""
+        # Reset all game scores before exiting
+        self.score = 0
+        self.p1_score = 0
+        self.p2_score = 0
+        self.current_level = None
+        self.current_q_index = 0
+        self.quiz_data = []
+        
+        # Reset highscore values to 0 for all difficulty levels
+        try:
+            self.highscores = {"kolay": 0, "orta": 0, "zor": 0}
+            DataManager.save_json(FILES["highscore"], self.highscores)
+            print(f"🔄 Highscores reset to 0 before exit: {self.highscores}")
+        except Exception as e:
+            print(f"⚠️ Warning: Could not reset highscores on exit: {e}")
+        
+        print(f"🔄 Scores reset before exit")
+        
+        pygame.quit()
+        sys.exit()
 
     def run(self):
         while True:
@@ -1846,7 +1964,7 @@ class Game:
 
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
-                    pygame.quit(); sys.exit()
+                    self.cleanup_and_exit()
                 
                 # --- JOYSTICK BAĞLANTI/ÇIKMA ---
                 if event.type == pygame.JOYDEVICEADDED:
@@ -1891,7 +2009,9 @@ class Game:
                 # --- TEK KİŞİLİK QUIZ INPUT ---
                 if self.state == "QUIZ" and self.settings["mode"] == "Classic":
                     ans = self.input_box.handle_event(event)
-                    if ans: self.check_answer(ans)
+                    # Only check answer if we have a non-empty answer
+                    if ans and str(ans).strip():
+                        self.check_answer(ans)
                 
                 # --- İKİ KİŞİLİK QUIZ INPUT (Sadece Classic modda) ---
                 if self.state == "TWO_PLAYER_QUIZ" and self.two_player_mode == "Classic":
@@ -1987,7 +2107,7 @@ class Game:
 
                 if event.type == pygame.KEYDOWN:
                     if event.key == pygame.K_ESCAPE:
-                        if self.state == "MENU": sys.exit()
+                        if self.state == "MENU": self.cleanup_and_exit()
                         elif self.state == "MODES_MENU": self.set_state("MENU")
                         elif self.state == "TWO_PLAYER_SETUP": self.set_state("MODES_MENU")
                         elif self.state in ["HIGHSCORE", "SETTINGS", "ADMIN", "GAMEOVER", "TWO_PLAYER_GAMEOVER"]: self.set_state("MENU")
