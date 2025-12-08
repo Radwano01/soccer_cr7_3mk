@@ -1072,9 +1072,10 @@ class Game:
             print(f"Running penalty shootout: {soccer_path}")
             print(f"Python executable: {sys.executable}")
             
-            # Run the subprocess
+            # Run the subprocess with player role information as arguments
+            # Pass goalkeeper and attacker IDs so soccer.py can map joysticks correctly
             result = subprocess.run(
-                [sys.executable, soccer_path], 
+                [sys.executable, soccer_path, self.penalty_goalkeeper, self.penalty_attacker], 
                 capture_output=False,  # Don't capture, let it display
                 cwd=current_dir,
                 check=False  # Don't raise exception on non-zero exit
